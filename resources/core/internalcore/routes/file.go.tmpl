@@ -10,7 +10,9 @@ import (
 )
 
 func FileRouter(router chi.Router) {
-	workDir, _ := os.Getwd()
+	executablePath, _ := os.Executable()
+
+	workDir := filepath.Dir(executablePath)
 	filesDir := http.Dir(filepath.Join(workDir, "public"))
 	FileServer(router, "/", filesDir)
 }
