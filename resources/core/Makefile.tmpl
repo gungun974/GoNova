@@ -6,7 +6,7 @@ GOFLAGS=
 
 DEST=build/
 
-.PHONY: all clean clean-build build build-server build-server-prepare run watch watchGo watchVite lint lint-js lint-go
+.PHONY: all clean clean-build build build-server build-server-prepare run watch watchGo watchVite migrate migrate-down migrate-create migrate-force migrate-drop lint lint-js lint-go
 
 include .env
 
@@ -47,6 +47,29 @@ clean:
 
 clean-build:
 	rm -rf $(DEST)
+
+migrate: 
+	migrate -database $(DATABASE_URL) \
+		-path ./internal/database/migrations up
+
+migrate-down: 
+	migrate -database $(DATABASE_URL) \
+		-path ./internal/database/migrations down
+
+migrate-create: 
+	@echo -n "Name for migration to create : "
+	@read name; \
+	migrate create -ext sql -dir ./internal/database/migrations -tz UTC $$name
+
+migrate-force: 
+	@echo -n "Version to migrate force : "
+	@read version; \
+	migrate -database $(DATABASE_URL) \
+		-path ./internal/database/migrations force $$version
+
+migrate-drop: 
+	migrate -database $(DATABASE_URL) \
+		-path ./internal/database/migrations drop
 
 lint:
 	${MAKE} -j3 lint-go lint-js lint-typechecks

@@ -1,0 +1,17 @@
+---
+version: "3"
+services:
+  db:
+    command: postgres -c listen_addresses='*'
+    image: postgres:13
+    volumes:
+      - database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: main
+    ports:
+      - "5432:5432"
+
+volumes:
+  database:
