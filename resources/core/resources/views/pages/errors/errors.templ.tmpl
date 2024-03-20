@@ -1,0 +1,19 @@
+package errors_page
+
+import "{{.ProjectName}}/resources/views/layouts"
+
+type ErrorPageParams struct {
+	StatusCode    string
+	StatusTitle   string
+	StatusMessage string
+}
+
+templ ErrorPage(params ErrorPageParams) {
+	@layouts.AppLayout() {
+		<div class="flex flex-col gap-4 text-center">
+			<h1 class="text-9xl font-bold text-one">{ params.StatusCode }</h1>
+			<p class="text-3xl font-light text-text-dark">{ params.StatusTitle }</p>
+			<p class="text-text-dark">{ params.StatusMessage }</p>
+		</div>
+	}
+}

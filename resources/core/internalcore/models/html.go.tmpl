@@ -1,0 +1,52 @@
+package models
+
+import (
+	"bytes"
+	"context"
+	"io"
+	"net/http"
+
+	"github.com/a-h/templ"
+	"{{.ProjectName}}/internal/logger"
+)
+
+type HtmlAPIResponse struct {
+	Status int
+	Data   bytes.Buffer
+}
+
+func RenderHtmlResponse(c templ.Component, ctx context.Context) HtmlAPIResponse {
+	return RenderHtmlResponseWithStatus(c, 200, ctx)
+}
+
+func RenderHtmlResponseWithStatus(c templ.Component, s int, ctx context.Context) HtmlAPIResponse {
+	response := HtmlAPIResponse{
+		Status: s,
+	}
+
+	err := c.Render(ctx, &response.Data)
+	if err != nil {
+		logger.MainLogger.Errorf("Templ rendering failed : %v", err)
+
+		data := bytes.Buffer{}
+		data.Write([]byte("Failed to render"))
+
+		return HtmlAPIResponse{
+			Status: 500,
+			Data:   data,
+		}
+	}
+
+	return response
+}
+
+func (r HtmlAPIResponse) WriteResponse(w http.ResponseWriter, _ *http.Request) {
+	if r.Status > 0 {
+		w.WriteHeader(r.Status)
+	}
+
+	_, err := io.Copy(w, &r.Data)
+	if err != nil {
+		logger.MainLogger.Errorf("Failed to write HTML API Response : %v", err)
+	}
+}

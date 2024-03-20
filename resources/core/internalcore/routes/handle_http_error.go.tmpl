@@ -1,0 +1,116 @@
+package routes
+
+import (
+	"encoding/base64"
+	"errors"
+	"net/http"
+	"strconv"
+
+	"{{.ProjectName}}/internal/entities"
+	"{{.ProjectName}}/internal/logger"
+
+	errors_page "{{.ProjectName}}/resources/views/pages/errors"
+)
+
+func handleHTTPError(err error, w http.ResponseWriter, r *http.Request) {
+	var errNotFound *entities.NotFoundError
+	var errValidation *entities.ValidationError
+	var errUnauthorized *entities.UnauthorizedError
+	var errInternal *entities.InternalError
+	var errGeneric *entities.GenericError
+
+	switch {
+	case errors.As(err, &errNotFound):
+		handleErrorPage(
+			errNotFound.Code,
+			"Page not found",
+			errNotFound.Message,
+			w, r,
+		)
+		return
+	case errors.As(err, &errValidation):
+		handleErrorPage(
+			errValidation.Code,
+			"Incorrect request",
+			"The request sent to the server is incorrect or incomplete.",
+			w, r,
+		)
+		return
+	case errors.As(err, &errUnauthorized):
+		handleErrorPage(
+			errUnauthorized.Code,
+			"Access denied",
+			"Sorry, you do not have the necessary permissions to access this page.",
+			w, r,
+		)
+		return
+	case errors.As(err, &errInternal):
+		logger.HTTPLogger.Errorf("Internal Server Error have ocurred : %v", err)
+		handleErrorPage(
+			errInternal.Code,
+			"Internal server error",
+			"An internal error has occurred on the server. Please try again later.",
+			w, r,
+		)
+		return
+	case errors.As(err, &errGeneric):
+		handleErrorPage(
+			errGeneric.Code,
+			"Error",
+			errGeneric.Message,
+			w, r,
+		)
+		return
+	default:
+		logger.HTTPLogger.Errorf("Unknown error have ocurred : %v", err)
+		handleErrorPage(
+			http.StatusInternalServerError,
+			"Internal server error",
+			"An internal error has occurred on the server. Please try again later.",
+			w, r,
+		)
+		return
+	}
+}
+
+func handleErrorPage(
+	code int,
+	title string,
+	message string, w http.ResponseWriter, r *http.Request,
+) {
+	ctx := r.Context()
+
+	encodedTitle := base64.StdEncoding.EncodeToString([]byte(title))
+	encodedMessage := base64.StdEncoding.EncodeToString([]byte(message))
+
+	w.Header().Add("X-App-Error-Title", encodedTitle)
+	w.Header().Add("X-App-Error-Message", encodedMessage)
+
+	w.WriteHeader(code)
+
+	params := errors_page.ErrorPageParams{
+		StatusCode:    strconv.Itoa(code),
+		StatusTitle:   title,
+		StatusMessage: message,
+	}
+
+	component := errors_page.ErrorPage(params)
+
+	err := component.Render(ctx, w)
+	if err != nil {
+		http.Error(
+			w,
+			message,
+			code,
+		)
+	}
+}
+
+func HandleNotFoundPage(w http.ResponseWriter, r *http.Request) {
+	handleErrorPage(
+		http.StatusNotFound,
+		"Page not found",
+		"Sorry, the page you are looking for does not exist or has been moved.",
+		w, r,
+	)
+}
