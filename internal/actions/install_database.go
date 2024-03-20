@@ -25,10 +25,15 @@ func InstallPostgreDatabase() error {
 		logger.MainLogger.Fatal("Can't Install Postgre Database without go in PATH")
 	}
 
+	logger.MainLogger.Info("Install Postgre Database")
+
 	projectGlobalTemplateConfig := struct {
-		ProjectName string
+		ProjectName   string
+		EnablePostgre bool
+		EnableSqlite  bool
 	}{
-		ProjectName: projectName,
+		ProjectName:   projectName,
+		EnablePostgre: true,
 	}
 
 	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/internal/logger/logger.go"), database_template.LoggerGoTemplate, projectGlobalTemplateConfig)
@@ -66,11 +71,6 @@ func InstallPostgreDatabase() error {
 		return err
 	}
 
-	err = utils.GoTidy(projectPath)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -90,10 +90,15 @@ func InstallSqliteDatabase() error {
 		logger.MainLogger.Fatal("Can't Install Sqlite Database without go in PATH")
 	}
 
+	logger.MainLogger.Info("Install Sqlite Database")
+
 	projectGlobalTemplateConfig := struct {
-		ProjectName string
+		ProjectName   string
+		EnablePostgre bool
+		EnableSqlite  bool
 	}{
-		ProjectName: projectName,
+		ProjectName:  projectName,
+		EnableSqlite: true,
 	}
 
 	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/internal/logger/logger.go"), database_template.LoggerGoTemplate, projectGlobalTemplateConfig)
@@ -122,11 +127,6 @@ func InstallSqliteDatabase() error {
 	}
 
 	err = utils.GoFmt(projectPath)
-	if err != nil {
-		return err
-	}
-
-	err = utils.GoTidy(projectPath)
 	if err != nil {
 		return err
 	}

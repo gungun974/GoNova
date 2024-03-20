@@ -6,6 +6,9 @@ import (
 	"net/http"
 	"os"
 
+{{if or (.EnablePostgre) (.EnableSqlite) -}}
+	"{{.ProjectName}}/internal/database"
+{{- end}}
 	"{{.ProjectName}}/internal/logger"
 	"{{.ProjectName}}/internal/middlewares"
 	"{{.ProjectName}}/internal/routes"
@@ -31,6 +34,10 @@ func main() {
 	if err == nil {
 		logger.MainLogger.Info("Loading .env file")
 	}
+
+  {{if or (.EnablePostgre) (.EnableSqlite) -}}
+  _ = database.Connect()
+  {{- end}}
 
 	router := routes.MainRouter()
 

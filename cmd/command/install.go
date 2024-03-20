@@ -26,6 +26,11 @@ func InstallPostgreDatabase(_ *cobra.Command, _ []string) {
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Install Postgre Database : %v", err)
 	}
+
+	err = actions.FinishInstall()
+	if err != nil {
+		logger.MainLogger.Fatalf("Failed to finish Install : %v", err)
+	}
 }
 
 var installSqliteDatabaseCmd = &cobra.Command{
@@ -38,5 +43,10 @@ func InstallSqliteDatabase(_ *cobra.Command, _ []string) {
 	err := actions.InstallSqliteDatabase()
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Install Sqlite Database : %v", err)
+	}
+
+	err = actions.FinishInstall()
+	if err != nil {
+		logger.MainLogger.Fatalf("Failed to finish Install : %v", err)
 	}
 }

@@ -23,7 +23,7 @@ import (
 	home_template "github.com/gungun974/gonova/resources/core/resources/views/pages/home"
 )
 
-func InstallCore(rawProjectName string) error {
+func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) error {
 	projectName := strings.TrimSpace(rawProjectName)
 
 	projectPath := "."
@@ -40,15 +40,21 @@ func InstallCore(rawProjectName string) error {
 		logger.MainLogger.Fatal("Can't Install Core without pnpm in PATH")
 	}
 
+	logger.MainLogger.Info("Install Core")
+
 	err := utils.InitGoMod(projectName, projectPath)
 	if err != nil {
 		return err
 	}
 
 	projectGlobalTemplateConfig := struct {
-		ProjectName string
+		ProjectName   string
+		EnablePostgre bool
+		EnableSqlite  bool
 	}{
-		ProjectName: projectName,
+		ProjectName:   projectName,
+		EnablePostgre: enablePostgre,
+		EnableSqlite:  enableSqlite,
 	}
 
 	//! /
@@ -343,11 +349,6 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.TemplGenerate(projectPath)
-	if err != nil {
-		return err
-	}
-
-	err = utils.GoTidy(projectPath)
 	if err != nil {
 		return err
 	}
