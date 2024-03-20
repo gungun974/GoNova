@@ -32,6 +32,14 @@ func InstallCore(rawProjectName string) error {
 		logger.MainLogger.Fatal("Can't Install Core when go module is already init")
 	}
 
+	if !utils.VerifyCmd("go") {
+		logger.MainLogger.Fatal("Can't Install Core without go in PATH")
+	}
+
+	if !utils.VerifyCmd("pnpm") {
+		logger.MainLogger.Fatal("Can't Install Core without pnpm in PATH")
+	}
+
 	err := utils.InitGoMod(projectName, projectPath)
 	if err != nil {
 		return err

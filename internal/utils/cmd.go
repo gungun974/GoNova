@@ -8,6 +8,11 @@ import (
 	"github.com/gungun974/gonova/internal/logger"
 )
 
+func VerifyCmd(cmd string) bool {
+	_, err := exec.LookPath(cmd)
+	return err == nil
+}
+
 func ExecuteCmd(name string, args []string, dir string) error {
 	command := exec.Command(name, args...)
 	command.Dir = dir
