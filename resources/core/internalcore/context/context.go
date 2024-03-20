@@ -14,3 +14,8 @@ var KeyGoTemplate = template.Must(template.New("key.go").Parse(string(keyGoFile)
 var requestInfoGoFile []byte
 
 var RequestInfoGoTemplate = template.Must(template.New("request_info.go").Parse(string(requestInfoGoFile)))
+
+//go:embed vite.go.tmpl
+var viteGoFile []byte
+
+var ViteGoTemplate = template.Must(template.New("vite.go").Parse(string(viteGoFile)))

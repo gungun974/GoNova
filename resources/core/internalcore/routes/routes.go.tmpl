@@ -18,7 +18,8 @@ func MainRouter() http.Handler {
 	router.Use(middlewares.ConditionalLogger([]string{}))
 
 	router.Use(middleware.Recoverer)
-
+	
+	router.Use(middlewares.ViteMiddleware)
 	router.Use(middlewares.RequestInfoMiddleware)
 
 	router.NotFound(HandleNotFoundPage)

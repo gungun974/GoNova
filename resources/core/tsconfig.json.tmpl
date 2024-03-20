@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "esnext",
+    "target": "esnext",
+    "experimentalDecorators": true,
+    "moduleResolution": "bundler",
+    "moduleDetection": "force",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "composite": true,
+    "strict": true,
+    "downlevelIteration": true,
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@": [
+        "resources/"
+      ],
+      "@/*": [
+        "resources/*"
+      ]
+    }
+  },
+  "include": [
+    "resources/**/*.ts",
+    "resources/**/*.d.ts",
+    ".eslintrc.cjs",
+    "prettier.config.js.tmpl.tmpl",
+    "vite.config.ts",
+    "postcss.config.js",
+    "tailwind.config.ts.tmpl.tmpl"
+  ],
+  "exclude": [
+    "resources/mails",
+    "node_modules"
+  ]
+}

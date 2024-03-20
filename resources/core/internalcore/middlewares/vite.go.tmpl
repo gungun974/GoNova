@@ -1,0 +1,69 @@
+//go:build !debug
+
+package middlewares
+
+import (
+	"context"
+	_ "embed"
+	"encoding/json"
+	"log"
+	"net/http"
+
+	context_key "{{.ProjectName}}/internal/context"
+)
+
+//go:embed manifest.json
+var viteManifestData []byte
+
+var (
+	viteScriptURL string
+	viteStyleURL  string
+)
+
+type viteResource struct {
+	File string `json:"file"`
+}
+
+type viteManifest map[string]viteResource
+
+func init() {
+	var manifest viteManifest
+	err := json.Unmarshal(viteManifestData, &manifest)
+	if err != nil {
+		log.Fatalf("Couldn't decode vite manifest JSON : %s", err)
+	}
+
+	resource, ok := manifest["resources/main.ts"]
+
+	if !ok {
+		log.Fatal("Couldn't find main.ts in vite manifest")
+	}
+
+	viteScriptURL = "/assets/" + resource.File
+
+	resource, ok = manifest["resources/main.css"]
+
+	if !ok {
+		log.Fatal("Couldn't find main.css in vite manifest")
+	}
+
+	viteStyleURL = "/assets/" + resource.File
+}
+
+func ViteMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), context_key.VITE_DEBUG,
+			false,
+		)
+		ctx = context.WithValue(ctx, context_key.VITE_SCRIPT_KEY, viteScriptURL)
+		ctx = context.WithValue(ctx, context_key.VITE_STYLE_KEY, viteStyleURL)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func ViteReload() {}
+
+func GetViteStyleURL() string {
+	return viteStyleURL
+}

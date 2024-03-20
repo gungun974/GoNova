@@ -1,0 +1,87 @@
+//go:build debug
+
+package middlewares
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"net"
+	"net/http"
+
+	context_key "{{.ProjectName}}/internal/context"
+)
+
+func ViteMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		protocol := "http"
+
+		if r.TLS != nil {
+			protocol = "https"
+		}
+
+		host, _, err := net.SplitHostPort(r.Host)
+		if err != nil {
+			http.Error(w, http.StatusText(500), 500)
+			return
+		}
+
+		url := fmt.Sprintf("%s://%s:5173", protocol, host)
+
+		// Proxy Vite PWA special file for debug mode only
+		if r.RequestURI == "/.dev-dist/dev-sw.js?dev-sw" {
+			httpProxy(url+"/assets/dev-sw.js?dev-sw", w)
+			return
+		}
+
+		if r.RequestURI == "/manifest.webmanifest" {
+			httpProxy(url+"/.dev-dist/manifest.webmanifest", w)
+			return
+		}
+
+		ctx := context.WithValue(r.Context(), context_key.VITE_DEBUG,
+			true,
+		)
+
+		ctx = context.WithValue(
+			ctx,
+			context_key.VITE_CLIENT_KEY,
+			url+"/assets/@vite/client",
+		)
+		ctx = context.WithValue(ctx, context_key.VITE_SCRIPT_KEY,
+			url+"/assets/resources/main.ts",
+		)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+func httpProxy(url string, w http.ResponseWriter) {
+	proxyResponse, err := http.Get(url)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer proxyResponse.Body.Close()
+
+	for key, values := range proxyResponse.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+	w.WriteHeader(proxyResponse.StatusCode)
+
+	io.Copy(w, proxyResponse.Body)
+}
+
+func ViteReload() {
+	resp, err := http.Get("http://127.0.0.1:5174/trigger-refresh")
+	if err != nil {
+		return
+	}
+	resp.Body.Close()
+}
+
+func GetViteStyleURL() string {
+	return ""
+}

@@ -15,6 +15,9 @@ import (
 	middlewares_template "github.com/gungun974/gonova/resources/core/internalcore/middlewares"
 	models_template "github.com/gungun974/gonova/resources/core/internalcore/models"
 	routes_template "github.com/gungun974/gonova/resources/core/internalcore/routes"
+	resources_template "github.com/gungun974/gonova/resources/core/resources"
+	css_template "github.com/gungun974/gonova/resources/core/resources/css"
+	scripts_template "github.com/gungun974/gonova/resources/core/resources/scripts"
 	layouts_template "github.com/gungun974/gonova/resources/core/resources/views/layouts"
 	errors_page_template "github.com/gungun974/gonova/resources/core/resources/views/pages/errors"
 	home_template "github.com/gungun974/gonova/resources/core/resources/views/pages/home"
@@ -67,6 +70,63 @@ func InstallCore(rawProjectName string) error {
 		return err
 	}
 
+	err = utils.CreateDirectory(filepath.Join(projectPath, "/public"))
+	if err != nil {
+		return err
+	}
+
+	// JS / CSS
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.eslintignore"), core_template.EslintignoreTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.eslintrc.cjs"), core_template.EslintrcTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.npmrc"), core_template.NpmrcTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/package.json"), core_template.PackageJsonTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/pnpm-workspace.yaml"), core_template.PnpmWorkspaceTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/postcss.config.js"), core_template.PostcssTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/prettier.config.js"), core_template.PrettierTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/tailwind.config.ts"), core_template.TailwindTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/tsconfig.json"), core_template.TsconfigTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/vite.config.ts"), core_template.ViteTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
 	//! /cmd/server
 
 	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/cmd/server/main.go"), server_template.MainGoTemplate, projectGlobalTemplateConfig)
@@ -82,6 +142,11 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/context/request_info.go"), context_template.RequestInfoGoTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/context/vite.go"), context_template.ViteGoTemplate, projectGlobalTemplateConfig)
 	if err != nil {
 		return err
 	}
@@ -108,6 +173,15 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/request_info_middleware.go"), middlewares_template.RequestInfoMiddlewareGoTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/vite.go"), middlewares_template.ViteGoTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/vite_debug.go"), middlewares_template.ViteDebugGoTemplate, projectGlobalTemplateConfig)
 	if err != nil {
 		return err
 	}
@@ -178,6 +252,11 @@ func InstallCore(rawProjectName string) error {
 		return err
 	}
 
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/layouts/vite.templ"), layouts_template.ViteTemplTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
 	//! /resources/views/pages/errors
 
 	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/pages/errors/errors.templ"), errors_page_template.ErrorsTemplTemplate, projectGlobalTemplateConfig)
@@ -199,6 +278,52 @@ func InstallCore(rawProjectName string) error {
 		return err
 	}
 
+	//! /resources
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/dom.d.ts"), resources_template.DomDTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/main.ts"), resources_template.MainTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	//! /resources/scripts
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/core.ts"), scripts_template.CoreTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/core.ts"), scripts_template.HtmxCoreTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/extensions.ts"), scripts_template.HtmxExtensionsTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/index.ts"), scripts_template.HtmxIndexTSTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	//! /resources/css
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/css/main.css"), css_template.MainCssTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/css/tailwind.css"), css_template.TailwindCssTemplate, projectGlobalTemplateConfig)
+	if err != nil {
+		return err
+	}
+
 	err = utils.GoFmt(projectPath)
 	if err != nil {
 		return err
@@ -215,6 +340,11 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.GoTidy(projectPath)
+	if err != nil {
+		return err
+	}
+
+	err = utils.PnpmInstall(projectPath)
 	if err != nil {
 		return err
 	}

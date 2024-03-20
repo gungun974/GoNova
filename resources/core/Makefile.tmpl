@@ -33,14 +33,13 @@ run: build-server
 	cd ${DEST}; ./$(SERVER_BINARY)
 
 dev:
-	## ${MAKE} -j2 watchGo watchVite
-	${MAKE} watchGo
+	${MAKE} -j2 watchGo watchVite
 
 watchGo:
 	air
 
-## watchVite:
-## 	bun vite --host
+watchVite:
+	bun vite --host
 
 clean:
 	$(GO) clean
@@ -49,16 +48,16 @@ clean:
 clean-build:
 	rm -rf $(DEST)
 
-## lint:
-## 	${MAKE} -j3 lint-go lint-js lint-typechecks
-##
-## lint-go:
-## 	templ generate
-## 	golangci-lint run ./...
-##
-## lint-js:
-## 	pnpm run lint
-##
-## lint-typechecks:
-## 	pnpm run typechecks 
-##
+lint:
+	${MAKE} -j3 lint-go lint-js lint-typechecks
+
+lint-go:
+	templ generate
+	golangci-lint run ./...
+
+lint-js:
+	pnpm run lint
+
+lint-typechecks:
+	pnpm run typechecks 
+

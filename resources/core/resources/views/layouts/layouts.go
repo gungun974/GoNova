@@ -14,3 +14,8 @@ var AppLayoutTemplTemplate = template.Must(template.New("app_layout.templ").Pars
 var coreTemplFile []byte
 
 var CoreTemplTemplate = template.Must(template.New("core.templ").Parse(string(coreTemplFile)))
+
+//go:embed vite.templ.tmpl
+var viteTemplFile []byte
+
+var ViteTemplTemplate = template.Must(template.New("vite.templ").Parse(string(viteTemplFile)))

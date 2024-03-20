@@ -1,0 +1,16 @@
+package layouts
+
+import context_key "{{.ProjectName}}/internal/context"
+
+templ vite() {
+	<script src={ ctx.Value(context_key.VITE_SCRIPT_KEY).(string) } type="module"></script>
+	if ctx.Value(context_key.VITE_CLIENT_KEY) != nil {
+		<script src={ ctx.Value(context_key.VITE_CLIENT_KEY).(string) } type="module"></script>
+	}
+	if ctx.Value(context_key.VITE_STYLE_KEY) != nil {
+		<link
+			rel="stylesheet"
+			href={ ctx.Value(context_key.VITE_STYLE_KEY).(string) }
+		/>
+	}
+}
