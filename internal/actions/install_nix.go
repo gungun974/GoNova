@@ -70,5 +70,10 @@ func InstallNix() error {
 		return err
 	}
 
+	err = utils.NixFlakeUpdate(projectPath)
+	if err != nil {
+		logger.MainLogger.Warn("Can't update nix flake")
+	}
+
 	return nil
 }
