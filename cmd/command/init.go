@@ -9,6 +9,8 @@ import (
 func init() {
 	rootCmd.AddCommand(initCmd)
 
+	initCmd.Flags().BoolP("no-git", "", false, "Don't init the project with Git")
+
 	initCmd.Flags().BoolP("postgre", "", false, "Init with postgre module")
 	initCmd.Flags().BoolP("sqlite", "", false, "Init with sqlite module")
 
@@ -23,6 +25,8 @@ var initCmd = &cobra.Command{
 }
 
 func InitNova(cmd *cobra.Command, args []string) {
+	enableNoGit, _ := cmd.Flags().GetBool("no-git")
+
 	enablePostgre, _ := cmd.Flags().GetBool("postgre")
 	enableSqlite, _ := cmd.Flags().GetBool("sqlite")
 
@@ -30,6 +34,14 @@ func InitNova(cmd *cobra.Command, args []string) {
 
 	if enablePostgre && enableSqlite {
 		logger.MainLogger.Fatal("You can't install postgree and sqlite at both time")
+	}
+
+	if !enableNoGit {
+		err := actions.CheckCanCreateGitRepo()
+		if err != nil {
+			logger.MainLogger.Fatalf("Failed to Check Git : %v", err)
+		}
+
 	}
 
 	err := actions.InstallCore(args[0], enablePostgre, enableSqlite)
@@ -61,5 +73,13 @@ func InitNova(cmd *cobra.Command, args []string) {
 	err = actions.FinishInstall()
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to finish Install : %v", err)
+	}
+
+	if !enableNoGit {
+		err := actions.CreateGitRepo()
+		if err != nil {
+			logger.MainLogger.Fatalf("Failed to Create Git Repo : %v", err)
+		}
+
 	}
 }
