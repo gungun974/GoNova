@@ -5,6 +5,7 @@
 *.so
 *.dylib
 /main
+/gonova
 
 # Test binary, built with "go test -c"
 *.test
@@ -22,3 +23,5 @@ tmp/
 
 # .env file
 .env
+
+.direnv
