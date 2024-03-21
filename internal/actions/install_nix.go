@@ -25,12 +25,19 @@ func InstallNix() error {
 		logger.MainLogger.Fatal("Can't Install Nix without go in PATH")
 	}
 
+	tmplVersion, err := utils.GetTemplVersion(projectPath)
+	if err != nil {
+		logger.MainLogger.Fatal(err)
+	}
+
 	logger.MainLogger.Info("Install Nix")
 
 	projectGlobalTemplateConfig := struct {
 		ProjectName string
+		TmplVersion string
 	}{
 		ProjectName: projectName,
+		TmplVersion: tmplVersion,
 	}
 
 	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/flake.nix"), nix_template.FlakeNixTemplate, projectGlobalTemplateConfig)
