@@ -1,0 +1,25 @@
+{
+  esbuild,
+  buildGoModule,
+  fetchFromGitHub,
+  lib,
+  ...
+}: let
+  customEsbuild = esbuild.override {
+    buildGoModule = args:
+      buildGoModule (args
+        // rec {
+          version = "0.18.20";
+          src = fetchFromGitHub {
+            owner = "evanw";
+            repo = "esbuild";
+            rev = "v${version}";
+            hash = "sha256-mED3h+mY+4H465m02ewFK/BgA1i/PQ+ksUNxBlgpUoI=";
+          };
+          vendorHash = "sha256-+BfxCyg0KkDQpHt/wycy/8CTG6YBA/VJvJFhhzUnSiQ=";
+        });
+  };
+in {
+  package = customEsbuild;
+  path = lib.getExe customEsbuild;
+}

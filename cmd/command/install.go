@@ -11,6 +11,7 @@ func init() {
 
 	installCmd.AddCommand(installPostgreDatabaseCmd)
 	installCmd.AddCommand(installSqliteDatabaseCmd)
+	installCmd.AddCommand(installNixCmd)
 
 	rootCmd.AddCommand(installCmd)
 }
@@ -43,6 +44,24 @@ func InstallSqliteDatabase(_ *cobra.Command, _ []string) {
 	err := actions.InstallSqliteDatabase()
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Install Sqlite Database : %v", err)
+	}
+
+	err = actions.FinishInstall()
+	if err != nil {
+		logger.MainLogger.Fatalf("Failed to finish Install : %v", err)
+	}
+}
+
+var installNixCmd = &cobra.Command{
+	Use:   "nix",
+	Short: "Install Nova Nix module in current directory",
+	Run:   InstallNix,
+}
+
+func InstallNix(_ *cobra.Command, _ []string) {
+	err := actions.InstallNix()
+	if err != nil {
+		logger.MainLogger.Fatalf("Failed to Install Nix : %v", err)
 	}
 
 	err = actions.FinishInstall()

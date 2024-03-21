@@ -1,0 +1,103 @@
+{
+  inputs = {
+    # Nixpkgs
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+
+    flake-utils.url = "github:numtide/flake-utils";
+
+    templ.url = "github:a-h/templ?ref=v0.2.598";
+
+    gitignore = {
+      url = "github:hercules-ci/gitignore.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs = inputs @ {
+    self,
+    nixpkgs,
+    gitignore,
+    flake-utils,
+    ...
+  }:
+    flake-utils.lib.eachDefaultSystem (system: let
+      pkgs = import nixpkgs {
+        inherit system;
+      };
+      templ = inputs.templ.packages.${system}.templ;
+
+      pnpmUtils = (import ./nix/helpers/fetch-pnpm-deps) pkgs;
+
+      esbuild = (import ./nix/helpers/esbuild) pkgs;
+    in {
+      packages = {
+        default = pkgs.buildGo122Module rec {
+          pname = "my-package";
+          version = "1.0.0";
+          src = gitignore.lib.gitignoreSource ./.;
+          subPackages = ["cmd/server"];
+          vendorHash = "";
+          CGO_ENABLED = 1;
+
+          buildInputs = with pkgs; [
+            pkg-config
+            gcc
+            glibc.static
+          ];
+
+          nativeBuildInputs = [
+            templ
+            pkgs.nodePackages.pnpm
+            pnpmUtils.pnpmConfigHook
+          ];
+
+          pnpmDeps = pnpmUtils.fetchPnpmDeps {
+            inherit src pname;
+            hash = "";
+          };
+
+          overrideModAttrs = oldAttrs: {
+            inherit pnpmDeps;
+          };
+
+          flags = [
+            "-trimpath"
+          ];
+          ldflags = [
+            "-s"
+            "-w"
+            "-extldflags -static"
+          ];
+
+          ESBUILD_BINARY_PATH = "${esbuild.path}";
+
+          preBuild = ''
+            touch .env
+            mkdir -p public
+
+            export ESBUILD_BINARY_PATH="${esbuild.path}"
+
+            make build-server-prepare
+          '';
+
+          postInstall = ''
+            cp -r build/* $out/bin/.
+          '';
+        };
+      };
+
+      devShell = pkgs.mkShell {
+        GOROOT = "${pkgs.go_1_22}/share/go";
+
+        buildInputs = with pkgs; [
+          (golangci-lint.override {buildGoModule = buildGo122Module;})
+          go_1_22
+          air
+          templ
+          (go-migrate.overrideAttrs (finalAttrs: previousAttrs: {
+            tags = ["sqlite3" "sqlite" "postgres" "pgx"];
+          }))
+        ];
+      };
+    });
+}

@@ -10,7 +10,9 @@ func init() {
 	rootCmd.AddCommand(initCmd)
 
 	initCmd.Flags().BoolP("postgre", "", false, "Init with postgre module")
-	initCmd.Flags().BoolP("sqlite", "", false, "Init with sqlite sqlite")
+	initCmd.Flags().BoolP("sqlite", "", false, "Init with sqlite module")
+
+	initCmd.Flags().BoolP("nix", "", false, "Init with nix module")
 }
 
 var initCmd = &cobra.Command{
@@ -23,6 +25,8 @@ var initCmd = &cobra.Command{
 func InitNova(cmd *cobra.Command, args []string) {
 	enablePostgre, _ := cmd.Flags().GetBool("postgre")
 	enableSqlite, _ := cmd.Flags().GetBool("sqlite")
+
+	enableNix, _ := cmd.Flags().GetBool("nix")
 
 	if enablePostgre && enableSqlite {
 		logger.MainLogger.Fatal("You can't install postgree and sqlite at both time")
@@ -42,6 +46,13 @@ func InitNova(cmd *cobra.Command, args []string) {
 
 	if enableSqlite {
 		err := actions.InstallSqliteDatabase()
+		if err != nil {
+			logger.MainLogger.Fatalf("Failed to Install Sqlite Database : %v", err)
+		}
+	}
+
+	if enableNix {
+		err := actions.InstallNix()
 		if err != nil {
 			logger.MainLogger.Fatalf("Failed to Install Sqlite Database : %v", err)
 		}
