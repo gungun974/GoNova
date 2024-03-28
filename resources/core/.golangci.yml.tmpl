@@ -2,14 +2,16 @@
 run:
   deadline: "5m"
   tests: true
-  skip-dirs:
+
+issues:
+  exclude-dirs:
     - "build"
     - "mocks"
-  skip-files:
+  exclude-files:
     - ".*_templ.go$"
 
 output:
-  format: "colored-line-number"
+  formats: "colored-line-number"
 
 linters:
   disable-all: true
