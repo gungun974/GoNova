@@ -20,11 +20,12 @@ var (
 	viteStyleURL  string
 )
 
-type viteResource struct {
-	File string `json:"file"`
+type viteResourceWithCss struct {
+	File string   `json:"file"`
+	Css  []string `json:"css"`
 }
 
-type viteManifest map[string]viteResource
+type viteManifest map[string]viteResourceWithCss
 
 func init() {
 	var manifest viteManifest
@@ -41,13 +42,11 @@ func init() {
 
 	viteScriptURL = "/assets/" + resource.File
 
-	resource, ok = manifest["resources/main.css"]
-
-	if !ok {
+	if len(resource.Css) == 0 {
 		log.Fatal("Couldn't find main.css in vite manifest")
 	}
 
-	viteStyleURL = "/assets/" + resource.File
+	viteStyleURL = "/assets/" + resource.Css[0]
 }
 
 func ViteMiddleware(next http.Handler) http.Handler {

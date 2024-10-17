@@ -19,7 +19,7 @@ build:
 build-server-prepare:
 	templ generate
 	pnpm vite build
-	mv ${DEST}/public/assets/manifest.json ./internal/middlewares/manifest.json
+	mv ${DEST}/public/assets/.vite/manifest.json ./internal/middlewares/manifest.json
 	cp -r ./public ${DEST}/
 
 build-server: build-server-prepare

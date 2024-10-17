@@ -9,12 +9,12 @@
     buildGoModule = args:
       buildGoModule (args
         // rec {
-          version = "0.18.20";
+          version = "0.21.5";
           src = fetchFromGitHub {
             owner = "evanw";
             repo = "esbuild";
             rev = "v${version}";
-            hash = "sha256-mED3h+mY+4H465m02ewFK/BgA1i/PQ+ksUNxBlgpUoI=";
+            hash = "sha256-FpvXWIlt67G8w3pBKZo/mcp57LunxDmRUaCU/Ne89B8=";
           };
           vendorHash = "sha256-+BfxCyg0KkDQpHt/wycy/8CTG6YBA/VJvJFhhzUnSiQ=";
         });
