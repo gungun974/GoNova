@@ -13,17 +13,9 @@ var FlakeNixTemplate = template.Must(template.New("flake.nix").Parse(string(flak
 //go:embed helpers/esbuild/default.nix.tmpl
 var esbuildNixFile []byte
 
-var EsbuildNixTemplate = template.Must(template.New("helpers/esbuild/default.nix").Parse(string(esbuildNixFile)))
-
-//go:embed helpers/fetch-pnpm-deps/default.nix.tmpl
-var pnpmNixFile []byte
-
-var PnpmNixTemplate = template.Must(template.New("helpers/fetch-pnpm-deps/default.nix").Parse(string(pnpmNixFile)))
-
-//go:embed helpers/fetch-pnpm-deps/pnpm-config-hook.sh.tmpl
-var pnpmConfigHookFile []byte
-
-var PnpmConfigHookTemplate = template.Must(template.New("helpers/fetch-pnpm-deps/pnpm-config-hook.sh").Parse(string(pnpmConfigHookFile)))
+var EsbuildNixTemplate = template.Must(
+	template.New("helpers/esbuild/default.nix").Parse(string(esbuildNixFile)),
+)
 
 //go:embed .envrc.tmpl
 var envrcFile []byte

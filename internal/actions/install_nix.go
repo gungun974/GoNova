@@ -40,27 +40,29 @@ func InstallNix() error {
 		TmplVersion: tmplVersion,
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/flake.nix"), nix_template.FlakeNixTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/flake.nix"),
+		nix_template.FlakeNixTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/nix/helpers/esbuild/default.nix"), nix_template.EsbuildNixTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/nix/helpers/esbuild/default.nix"),
+		nix_template.EsbuildNixTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/nix/helpers/fetch-pnpm-deps/default.nix"), nix_template.PnpmNixTemplate, projectGlobalTemplateConfig)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/nix/helpers/fetch-pnpm-deps/pnpm-config-hook.sh"), nix_template.PnpmConfigHookTemplate, projectGlobalTemplateConfig)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.envrc"), nix_template.EnvrcTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.envrc"),
+		nix_template.EnvrcTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
