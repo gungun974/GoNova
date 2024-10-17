@@ -11,8 +11,7 @@
     };
   };
 
-  outputs = inputs @ {
-    self,
+  outputs = {
     nixpkgs,
     gitignore,
     flake-utils,
@@ -24,7 +23,7 @@
       };
     in {
       packages = {
-        default = pkgs.buildGo122Module rec {
+        default = pkgs.buildGo123Module {
           pname = "gonova";
           version = "1.0.0";
           src = gitignore.lib.gitignoreSource ./.;
@@ -46,11 +45,11 @@
       };
 
       devShell = pkgs.mkShell {
-        GOROOT = "${pkgs.go_1_22}/share/go";
+        GOROOT = "${pkgs.go_1_23}/share/go";
 
         buildInputs = with pkgs; [
-          (golangci-lint.override {buildGoModule = buildGo122Module;})
-          go_1_22
+          (golangci-lint.override {buildGo123Module = buildGo123Module;})
+          go_1_23
           watchexec
         ];
       };
