@@ -44,7 +44,7 @@ func InitNova(cmd *cobra.Command, args []string) {
 
 	}
 
-	err := actions.InstallCore(args[0], enablePostgre, enableSqlite)
+	err := actions.InstallCore(args[0])
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Install Core : %v", err)
 	}

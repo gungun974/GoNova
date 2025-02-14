@@ -67,3 +67,5 @@ func init() {
 var MainLogger = log.WithField("logger", "MainLogger")
 
 var CommandLogger = log.WithField("logger", "CommandLogger")
+
+var InjectorLogger = log.WithField("logger", "InjectorLogger")

@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gungun974/gonova/internal/injector"
 	"github.com/gungun974/gonova/internal/logger"
 	"github.com/gungun974/gonova/internal/utils"
 	database_template "github.com/gungun974/gonova/resources/database"
@@ -18,7 +19,9 @@ func InstallPostgreDatabase() error {
 	}
 
 	if _, err := os.Stat(filepath.Join(projectPath, "/internal/database/database.go")); err == nil {
-		logger.MainLogger.Fatal("Can't Install Database Module when internal database.go is already installed")
+		logger.MainLogger.Fatal(
+			"Can't Install Database Module when internal database.go is already installed",
+		)
 	}
 
 	if !utils.VerifyCmd("go") {
@@ -36,35 +39,66 @@ func InstallPostgreDatabase() error {
 		EnablePostgre: true,
 	}
 
-	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/internal/logger/logger.go"), database_template.LoggerGoTemplate, projectGlobalTemplateConfig)
+	err = utils.MergeFileFromTemplate(
+		filepath.Join(projectPath, "/internal/logger/logger.go"),
+		database_template.LoggerGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/database/database.go"), database_template.PostgreDatabaseGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/database/database.go"),
+		database_template.PostgreDatabaseGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/database/migrations/EMPTY_MIGRATION.sql"), database_template.EmptyMigrationTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/database/migrations/EMPTY_MIGRATION.sql"),
+		database_template.EmptyMigrationTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/.env"), database_template.PostgreEnvFileTemplate, projectGlobalTemplateConfig)
+	err = utils.MergeFileFromTemplate(
+		filepath.Join(projectPath, "/.env"),
+		database_template.PostgreEnvFileTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	dockerComposeContent, err := utils.TemplateToString(database_template.PostgreDockerComposeFileTemplate, projectGlobalTemplateConfig)
+	dockerComposeContent, err := utils.TemplateToString(
+		database_template.PostgreDockerComposeFileTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.MergeYAMLFromString(filepath.Join(projectPath, "/docker-compose.yml"), dockerComposeContent)
+	err = utils.MergeYAMLFromString(
+		filepath.Join(projectPath, "/docker-compose.yml"),
+		dockerComposeContent,
+	)
 	if err != nil {
 		return err
 	}
+
+	injector.InjectMainDatabase(
+		filepath.Join(projectPath, "/cmd/server/main.go"),
+		projectName,
+	)
+
+	injector.InjectContainerDatabase(
+		filepath.Join(projectPath, "/internal/container.go"),
+	)
 
 	err = utils.GoFmt(projectPath)
 	if err != nil {
@@ -83,7 +117,9 @@ func InstallSqliteDatabase() error {
 	}
 
 	if _, err := os.Stat(filepath.Join(projectPath, "/internal/database/database.go")); err == nil {
-		logger.MainLogger.Fatal("Can't Install Database Module when internal database.go is already installed")
+		logger.MainLogger.Fatal(
+			"Can't Install Database Module when internal database.go is already installed",
+		)
 	}
 
 	if !utils.VerifyCmd("go") {
@@ -101,22 +137,38 @@ func InstallSqliteDatabase() error {
 		EnableSqlite: true,
 	}
 
-	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/internal/logger/logger.go"), database_template.LoggerGoTemplate, projectGlobalTemplateConfig)
+	err = utils.MergeFileFromTemplate(
+		filepath.Join(projectPath, "/internal/logger/logger.go"),
+		database_template.LoggerGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/database/database.go"), database_template.SqliteDatabaseGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/database/database.go"),
+		database_template.SqliteDatabaseGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/database/migrations/EMPTY_MIGRATION.sql"), database_template.EmptyMigrationTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/database/migrations/EMPTY_MIGRATION.sql"),
+		database_template.EmptyMigrationTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.MergeFileFromTemplate(filepath.Join(projectPath, "/.env"), database_template.SqliteEnvTemplate, projectGlobalTemplateConfig)
+	err = utils.MergeFileFromTemplate(
+		filepath.Join(projectPath, "/.env"),
+		database_template.SqliteEnvTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
@@ -125,6 +177,15 @@ func InstallSqliteDatabase() error {
 	if err != nil {
 		return err
 	}
+
+	injector.InjectMainDatabase(
+		filepath.Join(projectPath, "/cmd/server/main.go"),
+		projectName,
+	)
+
+	injector.InjectContainerDatabase(
+		filepath.Join(projectPath, "/internal/container.go"),
+	)
 
 	err = utils.GoFmt(projectPath)
 	if err != nil {

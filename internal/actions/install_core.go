@@ -24,7 +24,7 @@ import (
 	home_template "github.com/gungun974/gonova/resources/core/resources/views/pages/home"
 )
 
-func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) error {
+func InstallCore(rawProjectName string) error {
 	projectName := strings.TrimSpace(rawProjectName)
 
 	projectPath := "."
@@ -49,13 +49,9 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 	}
 
 	projectGlobalTemplateConfig := struct {
-		ProjectName   string
-		EnablePostgre bool
-		EnableSqlite  bool
+		ProjectName string
 	}{
-		ProjectName:   projectName,
-		EnablePostgre: enablePostgre,
-		EnableSqlite:  enableSqlite,
+		ProjectName: projectName,
 	}
 
 	//! /
