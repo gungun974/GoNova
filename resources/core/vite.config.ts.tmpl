@@ -1,6 +1,8 @@
 import { defineConfig } from "vite";
 import { createServer } from "http";
 
+import tailwindcss from "@tailwindcss/vite";
+
 import { resolve } from "path";
 
 const r = (p: string) => resolve(__dirname, p);
@@ -30,6 +32,8 @@ export default defineConfig({
     },
   },
   plugins: [
+    tailwindcss(),
+
     {
       name: "disable hot update templ",
       handleHotUpdate({ file }) {

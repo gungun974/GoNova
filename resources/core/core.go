@@ -35,7 +35,9 @@ var EnvTemplate = template.Must(template.New(".env").Parse(string(envFile)))
 //go:embed .eslintignore.tmpl
 var eslintignoreFile []byte
 
-var EslintignoreTemplate = template.Must(template.New(".eslintignore").Parse(string(eslintignoreFile)))
+var EslintignoreTemplate = template.Must(
+	template.New(".eslintignore").Parse(string(eslintignoreFile)),
+)
 
 //go:embed .eslintrc.cjs.tmpl
 var eslintrcFile []byte
@@ -55,22 +57,14 @@ var PackageJsonTemplate = template.Must(template.New("package.json").Parse(strin
 //go:embed pnpm-workspace.yaml.tmpl
 var pnpmWorkspaceFile []byte
 
-var PnpmWorkspaceTemplate = template.Must(template.New("pnpm-workspace.yaml").Parse(string(pnpmWorkspaceFile)))
-
-//go:embed postcss.config.js.tmpl
-var postcssFile []byte
-
-var PostcssTemplate = template.Must(template.New("postcss.config.js").Parse(string(postcssFile)))
+var PnpmWorkspaceTemplate = template.Must(
+	template.New("pnpm-workspace.yaml").Parse(string(pnpmWorkspaceFile)),
+)
 
 //go:embed prettier.config.js.tmpl
 var prettierFile []byte
 
 var PrettierTemplate = template.Must(template.New("prettier.config.js").Parse(string(prettierFile)))
-
-//go:embed tailwind.config.ts.tmpl
-var tailwindFile []byte
-
-var TailwindTemplate = template.Must(template.New("tailwind.config.ts").Parse(string(tailwindFile)))
 
 //go:embed tsconfig.json.tmpl
 var tsconfigFile []byte

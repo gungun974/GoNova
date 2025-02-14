@@ -59,27 +59,47 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 
 	//! /
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/Makefile"), core_template.MakefileTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/Makefile"),
+		core_template.MakefileTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.golangci.yml"), core_template.GolangciTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.golangci.yml"),
+		core_template.GolangciTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.gitignore"), core_template.GitignoreTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.gitignore"),
+		core_template.GitignoreTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.air.toml"), core_template.AirTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.air.toml"),
+		core_template.AirTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.env"), core_template.EnvTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.env"),
+		core_template.EnvTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
@@ -91,196 +111,318 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 
 	// JS / CSS
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.eslintignore"), core_template.EslintignoreTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.eslintignore"),
+		core_template.EslintignoreTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.eslintrc.cjs"), core_template.EslintrcTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.eslintrc.cjs"),
+		core_template.EslintrcTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/.npmrc"), core_template.NpmrcTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/.npmrc"),
+		core_template.NpmrcTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/package.json"), core_template.PackageJsonTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/package.json"),
+		core_template.PackageJsonTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/pnpm-workspace.yaml"), core_template.PnpmWorkspaceTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/pnpm-workspace.yaml"),
+		core_template.PnpmWorkspaceTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/postcss.config.js"), core_template.PostcssTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/prettier.config.js"),
+		core_template.PrettierTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/prettier.config.js"), core_template.PrettierTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/tsconfig.json"),
+		core_template.TsconfigTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/tailwind.config.ts"), core_template.TailwindTemplate, projectGlobalTemplateConfig)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/tsconfig.json"), core_template.TsconfigTemplate, projectGlobalTemplateConfig)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/vite.config.ts"), core_template.ViteTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/vite.config.ts"),
+		core_template.ViteTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /cmd/server
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/cmd/server/main.go"), server_template.MainGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/cmd/server/main.go"),
+		server_template.MainGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/context
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/context/key.go"), context_template.KeyGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/context/key.go"),
+		context_template.KeyGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/context/request_info.go"), context_template.RequestInfoGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/context/request_info.go"),
+		context_template.RequestInfoGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/context/vite.go"), context_template.ViteGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/context/vite.go"),
+		context_template.ViteGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/entities
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/entities/error.go"), entities_template.ErrorGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/entities/error.go"),
+		entities_template.ErrorGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/logger
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/logger/logger.go"), logger_template.LoggerGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/logger/logger.go"),
+		logger_template.LoggerGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/middlewares
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/conditional_logger.go"), middlewares_template.ConditionalLoggerGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/middlewares/conditional_logger.go"),
+		middlewares_template.ConditionalLoggerGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/request_info_middleware.go"), middlewares_template.RequestInfoMiddlewareGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/middlewares/request_info_middleware.go"),
+		middlewares_template.RequestInfoMiddlewareGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/vite.go"), middlewares_template.ViteGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/middlewares/vite.go"),
+		middlewares_template.ViteGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/middlewares/vite_debug.go"), middlewares_template.ViteDebugGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/middlewares/vite_debug.go"),
+		middlewares_template.ViteDebugGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/models
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/api.go"), models_template.ApiGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/api.go"),
+		models_template.ApiGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/html.go"), models_template.HtmlGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/html.go"),
+		models_template.HtmlGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/image.go"), models_template.ImageGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/image.go"),
+		models_template.ImageGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/json.go"), models_template.JsonGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/json.go"),
+		models_template.JsonGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/pdf.go"), models_template.PdfGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/pdf.go"),
+		models_template.PdfGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/models/redirect.go"), models_template.RedirectGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/redirect.go"),
+		models_template.RedirectGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /internal/routes
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/routes/file.go"), routes_template.FileGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/routes/file.go"),
+		routes_template.FileGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/routes/handle_http_error.go"), routes_template.HandleHttpErrorGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/routes/handle_http_error.go"),
+		routes_template.HandleHttpErrorGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/routes/home.go"), routes_template.HomeGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/routes/home.go"),
+		routes_template.HomeGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/internal/routes/routes.go"), routes_template.RoutesGoTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/routes/routes.go"),
+		routes_template.RoutesGoTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /resources/view/layouts
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/layouts/app_layout.templ"), layouts_template.AppLayoutTemplTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/views/layouts/app_layout.templ"),
+		layouts_template.AppLayoutTemplTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/layouts/core.templ"), layouts_template.CoreTemplTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/views/layouts/core.templ"),
+		layouts_template.CoreTemplTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/layouts/vite.templ"), layouts_template.ViteTemplTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/views/layouts/vite.templ"),
+		layouts_template.ViteTemplTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /resources/views/pages/errors
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/pages/errors/errors.templ"), errors_page_template.ErrorsTemplTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/views/pages/errors/errors.templ"),
+		errors_page_template.ErrorsTemplTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /resources/views/pages/home
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/views/pages/home/index.templ"), home_template.IndexTemplTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/views/pages/home/index.templ"),
+		home_template.IndexTemplTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
@@ -294,46 +436,78 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 
 	//! /resources
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/dom.d.ts"), resources_template.DomDTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/dom.d.ts"),
+		resources_template.DomDTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/main.ts"), resources_template.MainTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/main.ts"),
+		resources_template.MainTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /resources/scripts
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/core.ts"), scripts_template.CoreTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/scripts/core.ts"),
+		scripts_template.CoreTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/core.ts"), scripts_template.HtmxCoreTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/scripts/htmx/core.ts"),
+		scripts_template.HtmxCoreTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/extensions.ts"), scripts_template.HtmxExtensionsTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/scripts/htmx/extensions.ts"),
+		scripts_template.HtmxExtensionsTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/scripts/htmx/index.ts"), scripts_template.HtmxIndexTSTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/scripts/htmx/index.ts"),
+		scripts_template.HtmxIndexTSTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
 	//! /resources/css
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/css/main.css"), css_template.MainCssTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/css/main.css"),
+		css_template.MainCssTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
 
-	err = utils.CreateFileFromTemplate(filepath.Join(projectPath, "/resources/css/tailwind.css"), css_template.TailwindCssTemplate, projectGlobalTemplateConfig)
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/resources/css/tailwind.css"),
+		css_template.TailwindCssTemplate,
+		projectGlobalTemplateConfig,
+	)
 	if err != nil {
 		return err
 	}
