@@ -9,6 +9,7 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 	core_template "github.com/gungun974/gonova/resources/core"
 	server_template "github.com/gungun974/gonova/resources/core/cmd/server"
+	internal_template "github.com/gungun974/gonova/resources/core/internalcore"
 	context_template "github.com/gungun974/gonova/resources/core/internalcore/context"
 	entities_template "github.com/gungun974/gonova/resources/core/internalcore/entities"
 	logger_template "github.com/gungun974/gonova/resources/core/internalcore/logger"
@@ -174,6 +175,17 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 		return err
 	}
 
+	//! /internal
+
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/container.go"),
+		internal_template.ContainerGoTemplate,
+		projectGlobalTemplateConfig,
+	)
+	if err != nil {
+		return err
+	}
+
 	//! /cmd/server
 
 	err = utils.CreateFileFromTemplate(
@@ -214,10 +226,10 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 		return err
 	}
 
-	//! /internal/entities
+	//! /internal/layers/domain/entities
 
 	err = utils.CreateFileFromTemplate(
-		filepath.Join(projectPath, "/internal/entities/error.go"),
+		filepath.Join(projectPath, "/internal/layers/domain/entities/error.go"),
 		entities_template.ErrorGoTemplate,
 		projectGlobalTemplateConfig,
 	)

@@ -9,6 +9,7 @@ import (
 {{if or (.EnablePostgre) (.EnableSqlite) -}}
 	"{{.ProjectName}}/internal/database"
 {{- end}}
+	"{{.ProjectName}}/internal"
 	"{{.ProjectName}}/internal/logger"
 	"{{.ProjectName}}/internal/middlewares"
 	"{{.ProjectName}}/internal/routes"
@@ -39,7 +40,9 @@ func main() {
   _ = database.Connect()
   {{- end}}
 
-	router := routes.MainRouter()
+  container := internal.NewContainer()
+
+	router := routes.MainRouter(container)
 
 	port := os.Getenv("PORT")
 

@@ -4,10 +4,11 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"{{.ProjectName}}/internal"
 	"{{.ProjectName}}/resources/views/pages/home"
 )
 
-func IndexRouter() http.Handler {
+func IndexRouter(c internal.Container) http.Handler {
 	router := chi.NewRouter()
 
 	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
