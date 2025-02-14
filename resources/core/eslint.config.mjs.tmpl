@@ -1,0 +1,92 @@
+import typescriptEslint from "@typescript-eslint/eslint-plugin";
+import globals from "globals";
+import tsParser from "@typescript-eslint/parser";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import js from "@eslint/js";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const filename = fileURLToPath(import.meta.url);
+const dirname = path.dirname(filename);
+const compat = new FlatCompat({
+  baseDirectory: dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all,
+});
+
+export default [
+  {
+    ignores: ["build/*", "internal/*", "node_modules/*", "tmp/*", "cmd/*"],
+  },
+  ...compat.extends(
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "eslint-config-prettier",
+  ),
+  {
+    plugins: {
+      "@typescript-eslint": typescriptEslint,
+    },
+
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.jest,
+      },
+
+      parser: tsParser,
+      ecmaVersion: 5,
+      sourceType: "commonjs",
+    },
+
+    rules: {
+      "no-console": "error",
+      "import/extensions": "off",
+      "import/prefer-default-export": "off",
+      "import/no-unresolved": "off",
+      "class-methods-use-this": "off",
+      "max-classes-per-file": "off",
+      "no-await-in-loop": "off",
+      "import/no-extraneous-dependencies": "off",
+      "no-shadow": "off",
+      "@typescript-eslint/no-shadow": ["error"],
+
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+        },
+      ],
+
+      "no-unused-vars": "off",
+      "no-useless-constructor": "off",
+      "@typescript-eslint/no-useless-constructor": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
+      "@typescript-eslint/no-unsafe-function-type": "error",
+      "@typescript-eslint/no-wrapper-object-types": "error",
+      "require-await": "off",
+      "space-before-function-paren": "off",
+      semi: "off",
+      "semi-style": "error",
+      "comma-dangle": "off",
+      indent: "off",
+
+      "@typescript-eslint/consistent-type-imports": [
+        "warn",
+        {
+          prefer: "type-imports",
+          fixStyle: "inline-type-imports",
+        },
+      ],
+
+      "@typescript-eslint/no-explicit-any": "off",
+    },
+  },
+  {
+    files: ["./resources/**/*.ts"],
+
+    rules: {
+      "no-console": "off",
+    },
+  },
+];

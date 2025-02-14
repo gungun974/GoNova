@@ -112,17 +112,8 @@ func InstallCore(rawProjectName string, enablePostgre bool, enableSqlite bool) e
 	// JS / CSS
 
 	err = utils.CreateFileFromTemplate(
-		filepath.Join(projectPath, "/.eslintignore"),
-		core_template.EslintignoreTemplate,
-		projectGlobalTemplateConfig,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(
-		filepath.Join(projectPath, "/.eslintrc.cjs"),
-		core_template.EslintrcTemplate,
+		filepath.Join(projectPath, "/eslint.config.mjs"),
+		core_template.EslintConfigFileTemplate,
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {

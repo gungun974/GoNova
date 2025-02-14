@@ -32,17 +32,12 @@ var EnvTemplate = template.Must(template.New(".env").Parse(string(envFile)))
 
 //! Vite / JS / CSS
 
-//go:embed .eslintignore.tmpl
-var eslintignoreFile []byte
+//go:embed eslint.config.mjs.tmpl
+var eslintConfigFile []byte
 
-var EslintignoreTemplate = template.Must(
-	template.New(".eslintignore").Parse(string(eslintignoreFile)),
+var EslintConfigFileTemplate = template.Must(
+	template.New("eslint.config.mjs").Parse(string(eslintConfigFile)),
 )
-
-//go:embed .eslintrc.cjs.tmpl
-var eslintrcFile []byte
-
-var EslintrcTemplate = template.Must(template.New(".eslintrc.cjs").Parse(string(eslintrcFile)))
 
 //go:embed .npmrc.tmpl
 var npmrcFile []byte
