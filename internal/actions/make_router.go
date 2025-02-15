@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/gungun974/gonova/internal/helpers"
 	"github.com/gungun974/gonova/internal/injector"
@@ -22,7 +21,7 @@ func MakeRouter(routerName string, urlMountPath string) error {
 		logger.MainLogger.Fatalf("Can't parse go mod : %v", err)
 	}
 
-	newRouteFilePath := fmt.Sprintf("/internal/routes/%s.go", strings.ToLower(routerName))
+	newRouteFilePath := fmt.Sprintf("/internal/routes/%s.go", helpers.ToSnakeCase(routerName))
 
 	if _, err := os.Stat(filepath.Join(projectPath, newRouteFilePath)); err == nil {
 		logger.MainLogger.Fatal(

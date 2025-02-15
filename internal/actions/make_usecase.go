@@ -22,14 +22,14 @@ func MakeUsecase(usecaseName string) error {
 
 	newUsecaseFilePath := fmt.Sprintf(
 		"/internal/layers/domain/usecases/%s/%s_usecase.go",
-		strings.ToLower(usecaseName),
-		strings.ToLower(usecaseName),
+		helpers.ToSnakeCase(usecaseName),
+		helpers.ToSnakeCase(usecaseName),
 	)
 
 	usecaseExampleFilePath := fmt.Sprintf(
 		"/internal/layers/domain/usecases/%s/%s_get_example.go",
-		strings.ToLower(usecaseName),
-		strings.ToLower(usecaseName),
+		helpers.ToSnakeCase(usecaseName),
+		helpers.ToSnakeCase(usecaseName),
 	)
 
 	if _, err := os.Stat(filepath.Join(projectPath, newUsecaseFilePath)); err == nil {
