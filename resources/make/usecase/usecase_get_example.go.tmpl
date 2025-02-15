@@ -1,0 +1,13 @@
+package {{.UsecasePackage}}
+
+import (
+	"context"
+
+	"{{.ProjectName}}/internal/models"
+)
+
+func (u *{{.UsecaseName}}) GetExample(
+	ctx context.Context,
+) (models.APIResponse, error) {
+	return models.PlainAPIResponse{Text: "{{.UsecaseName}}"}, nil
+}
