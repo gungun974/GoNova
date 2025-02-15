@@ -1,0 +1,23 @@
+package routes
+
+import (
+	"net/http"
+
+	"github.com/go-chi/chi/v5"
+
+	"{{.ProjectName}}/internal"
+)
+
+func {{.RouterName}}(c internal.Container) http.Handler {
+	router := chi.NewRouter()
+
+	router.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		_, err := w.Write([]byte("{{.RouteURL}}"))
+		if err != nil {
+			handleHTTPError(err, w, r)
+			return
+		}
+	})
+
+	return router
+}
