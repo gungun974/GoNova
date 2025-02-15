@@ -21,8 +21,8 @@ func GoGetPackage(appDir string, packageName string) error {
 }
 
 func GoFmt(appDir string) error {
-	if err := ExecuteCmd("gofmt",
-		[]string{"-s", "-w", "."},
+	if err := ExecuteCmd("go",
+		[]string{"run", "mvdan.cc/gofumpt@latest", "-w", "."},
 		appDir); err != nil {
 		return err
 	}
