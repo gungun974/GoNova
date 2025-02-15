@@ -2,39 +2,48 @@ package command
 
 import (
 	"github.com/gungun974/gonova/internal/actions"
+	"github.com/gungun974/gonova/internal/form"
 	"github.com/gungun974/gonova/internal/logger"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-
-	initCmd.Flags().BoolP("no-git", "", false, "Don't init the project with Git")
-
-	initCmd.Flags().BoolP("postgre", "", false, "Init with postgre module")
-	initCmd.Flags().BoolP("sqlite", "", false, "Init with sqlite module")
-
-	initCmd.Flags().BoolP("nix", "", false, "Init with nix module")
 }
 
 var initCmd = &cobra.Command{
-	Use:   "init [name]",
+	Use:   "init (name)",
 	Short: "Init Nova Core in current directory",
-	Args:  cobra.MinimumNArgs(1),
+	Args:  cobra.MinimumNArgs(0),
 	Run:   InitNova,
 }
 
 func InitNova(cmd *cobra.Command, args []string) {
-	enableNoGit, _ := cmd.Flags().GetBool("no-git")
-
-	enablePostgre, _ := cmd.Flags().GetBool("postgre")
-	enableSqlite, _ := cmd.Flags().GetBool("sqlite")
-
-	enableNix, _ := cmd.Flags().GetBool("nix")
-
-	if enablePostgre && enableSqlite {
-		logger.MainLogger.Fatal("You can't install postgree and sqlite at both time")
+	projectName := ""
+	if len(args) == 0 {
+		projectName = form.AskInput("The golang module name :")
+	} else {
+		projectName = args[0]
 	}
+
+	database := form.AskChoice("Do you want to install a Database module :", []form.Choice{
+		{
+			Name:  "No",
+			Value: "none",
+		},
+		{
+			Name:  "SQLite",
+			Value: "sqlite",
+		},
+		{
+			Name:  "PostgreSQL",
+			Value: "postgre",
+		},
+	})
+
+	enableNoGit := !form.AskOption("Do you want to initialize Git :", true, "Yes", "No")
+
+	enableNix := form.AskOption("Do you want to install the Nix module :", true, "Yes", "No")
 
 	if !enableNoGit {
 		err := actions.CheckCanCreateGitRepo()
@@ -44,19 +53,19 @@ func InitNova(cmd *cobra.Command, args []string) {
 
 	}
 
-	err := actions.InstallCore(args[0])
+	err := actions.InstallCore(projectName)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Install Core : %v", err)
 	}
 
-	if enablePostgre {
+	if database == "postgre" {
 		err := actions.InstallPostgreDatabase()
 		if err != nil {
 			logger.MainLogger.Fatalf("Failed to Install Postgre Database : %v", err)
 		}
 	}
 
-	if enableSqlite {
+	if database == "sqlite" {
 		err := actions.InstallSqliteDatabase()
 		if err != nil {
 			logger.MainLogger.Fatalf("Failed to Install Sqlite Database : %v", err)

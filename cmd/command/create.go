@@ -11,19 +11,12 @@ import (
 
 func init() {
 	rootCmd.AddCommand(createCmd)
-
-	createCmd.Flags().BoolP("no-git", "", false, "Don't init the project with Git")
-
-	createCmd.Flags().BoolP("postgre", "", false, "Init with postgre module")
-	createCmd.Flags().BoolP("sqlite", "", false, "Init with sqlite module")
-
-	createCmd.Flags().BoolP("nix", "", false, "Init with nix module")
 }
 
 var createCmd = &cobra.Command{
-	Use:   "create [directory-name] [name]",
+	Use:   "create [directory-name] (name)",
 	Short: "Create Nova Core in a specific directory",
-	Args:  cobra.MinimumNArgs(2),
+	Args:  cobra.MinimumNArgs(1),
 	Run:   CreateNova,
 }
 
