@@ -293,6 +293,15 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/file.go"),
+		models_template.FileGoTemplate,
+		projectGlobalTemplateConfig,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(
 		filepath.Join(projectPath, "/internal/models/html.go"),
 		models_template.HtmlGoTemplate,
 		projectGlobalTemplateConfig,
@@ -322,6 +331,24 @@ func InstallCore(rawProjectName string) error {
 	err = utils.CreateFileFromTemplate(
 		filepath.Join(projectPath, "/internal/models/pdf.go"),
 		models_template.PdfGoTemplate,
+		projectGlobalTemplateConfig,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/plain.go"),
+		models_template.PlainGoTemplate,
+		projectGlobalTemplateConfig,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = utils.CreateFileFromTemplate(
+		filepath.Join(projectPath, "/internal/models/reader.go"),
+		models_template.ReaderGoTemplate,
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {
