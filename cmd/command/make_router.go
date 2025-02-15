@@ -21,12 +21,12 @@ var makeRouterCmd = &cobra.Command{
 func MakeRouter(cmd *cobra.Command, args []string) {
 	routerName := ""
 	if len(args) == 0 {
-		routerName = form.AskInput("The router name :")
+		routerName = form.AskInputWithPlaceholder("The router name :", "Post")
 	} else {
 		routerName = args[0]
 	}
 
-	urlMountPath := form.AskInput("Url mount path :")
+	urlMountPath := form.AskInputWithPlaceholder("Url mount path :", "/post")
 
 	err := actions.MakeRouter(routerName, urlMountPath)
 	if err != nil {

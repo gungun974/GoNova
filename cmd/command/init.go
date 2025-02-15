@@ -21,7 +21,10 @@ var initCmd = &cobra.Command{
 func InitNova(cmd *cobra.Command, args []string) {
 	projectName := ""
 	if len(args) == 0 {
-		projectName = form.AskInput("The golang module name :")
+		projectName = form.AskInputWithPlaceholder(
+			"The golang module name :",
+			"github.com/user/project",
+		)
 	} else {
 		projectName = args[0]
 	}

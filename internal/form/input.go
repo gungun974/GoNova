@@ -21,7 +21,7 @@ func AskInput(question string) string {
 	hasExit := false
 
 	tprogram := tea.NewProgram(
-		initialInputModel(&output, question, &hasExit),
+		initialInputModel(&output, question, "", &hasExit),
 	)
 	if _, err := tprogram.Run(); err != nil {
 		logger.MainLogger.Fatal(err)
@@ -32,11 +32,32 @@ func AskInput(question string) string {
 	return output
 }
 
-func initialInputModel(output *string, header string, hasExit *bool) inputModel {
+func AskInputWithPlaceholder(question string, placeholder string) string {
+	output := ""
+
+	hasExit := false
+
+	tprogram := tea.NewProgram(
+		initialInputModel(&output, question, placeholder, &hasExit),
+	)
+	if _, err := tprogram.Run(); err != nil {
+		logger.MainLogger.Fatal(err)
+	}
+
+	handleExit(tprogram, hasExit)
+
+	return output
+}
+
+func initialInputModel(
+	output *string,
+	header string,
+	placeholder string,
+	hasExit *bool,
+) inputModel {
 	ti := textinput.New()
 	ti.Focus()
-	ti.CharLimit = 156
-	ti.Width = 20
+	ti.Placeholder = placeholder
 
 	return inputModel{
 		textInput: ti,
