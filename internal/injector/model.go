@@ -7,6 +7,7 @@ import (
 
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
+	"github.com/dave/dst/dstutil"
 	"github.com/gungun974/gonova/internal/analyzer"
 	"github.com/gungun974/gonova/internal/helpers"
 	"github.com/gungun974/gonova/internal/logger"
@@ -40,19 +41,57 @@ func InjectModelNewModel(path string, entity analyzer.AnalyzedEntity) {
 	}
 
 	var buffer bytes.Buffer
-	make_model_template.InjectModelGoTemplate.Execute(&buffer, projectGlobalTemplateConfig)
+	err = make_model_template.InjectModelGoTemplate.Execute(&buffer, projectGlobalTemplateConfig)
+	if err != nil {
+		logger.MainLogger.Fatal(err)
+	}
 
 	newDst, err := decorator.Parse(buffer.String())
 	if err != nil {
 		logger.MainLogger.Fatal(err)
 	}
 
+	dstutil.Apply(newDst, nil, func(c *dstutil.Cursor) bool {
+		n := c.Node()
+		switch x := n.(type) {
+		case *dst.CompositeLit:
+			selectorExpr, ok := x.Type.(*dst.SelectorExpr)
+			if !ok {
+				return true
+			}
+
+			mod, ok := selectorExpr.X.(*dst.Ident)
+			if !ok {
+				return true
+			}
+
+			if mod.Name != "entities" || selectorExpr.Sel.Name != projectGlobalTemplateConfig.EntityName {
+				return true
+			}
+
+			for _, field := range entity.Fields {
+				if !field.Exported() {
+					continue
+				}
+				x.Elts = append(x.Elts, &dst.KeyValueExpr{
+					Key:   dst.NewIdent(field.Name()),
+					Value: dst.NewIdent(helpers.LowerFirstLetter(field.Name())),
+					Decs: dst.KeyValueExprDecorations{
+						NodeDecs: dst.NodeDecs{
+							After: dst.NewLine,
+						},
+					},
+				})
+			}
+		}
+
+		return true
+	})
+
 	f, err := decorator.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
 	if err != nil {
 		logger.InjectorLogger.Fatal(err)
 	}
-
-	// addImport(f, projectName+"/internal/layers/domain/entities", "")
 
 	f.Decls = append(f.Decls, newDst.Decls...)
 

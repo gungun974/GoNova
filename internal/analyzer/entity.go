@@ -16,6 +16,7 @@ const APP_ERRROR_STRUCT_NAME string = "AppError"
 type AnalyzedEntity struct {
 	Name     string
 	FilePath string
+	Fields   []*types.Var
 }
 
 func AnalyzeProjectEntities() []AnalyzedEntity {
@@ -83,10 +84,19 @@ func AnalyzeProjectEntities() []AnalyzedEntity {
 				}
 			}
 
-			entities = append(entities, AnalyzedEntity{
+			entity := AnalyzedEntity{
 				Name:     ident.Name,
 				FilePath: pkg.Fset.Position(obj.Pos()).Filename,
-			})
+			}
+
+			if structType, ok := typeName.Type().Underlying().(*types.Struct); ok {
+				for i := 0; i < structType.NumFields(); i++ {
+					field := structType.Field(i)
+					entity.Fields = append(entity.Fields, field)
+				}
+			}
+
+			entities = append(entities, entity)
 		}
 	}
 
