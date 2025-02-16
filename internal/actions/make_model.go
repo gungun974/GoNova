@@ -3,15 +3,14 @@ package actions
 import (
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
 
 	"github.com/gungun974/gonova/internal/analyzer"
-	"github.com/gungun974/gonova/internal/helpers"
+	"github.com/gungun974/gonova/internal/injector"
 	"github.com/gungun974/gonova/internal/logger"
 	"github.com/gungun974/gonova/internal/utils"
 	make_model_template "github.com/gungun974/gonova/resources/make/model"
-
-	"github.com/jinzhu/inflection"
 )
 
 func MakeModel(entity analyzer.AnalyzedEntity) error {
@@ -24,38 +23,36 @@ func MakeModel(entity analyzer.AnalyzedEntity) error {
 
 	newEntityFilePath := fmt.Sprintf(
 		"/internal/layers/data/models/%s.go",
-		helpers.ToSnakeCase(entity.Name),
+		path.Base(entity.FilePath),
 	)
 
 	logger.MainLogger.Info("Make Model")
 
 	projectGlobalTemplateConfig := struct {
 		ProjectName string
-
-		ModelName  string
-		ModelsName string
-
-		EntityName   string
-		EntitiesName string
 	}{
 		ProjectName: projectName,
-
-		ModelName:  helpers.CapitalizeFirstLetter(entity.Name) + "Model",
-		ModelsName: inflection.Plural(helpers.CapitalizeFirstLetter(entity.Name) + "Model"),
-
-		EntityName:   helpers.CapitalizeFirstLetter(entity.Name),
-		EntitiesName: inflection.Plural(helpers.CapitalizeFirstLetter(entity.Name)),
 	}
 
 	if _, err := os.Stat(filepath.Join(projectPath, newEntityFilePath)); err != nil {
 		err = utils.CreateFileFromTemplate(
 			filepath.Join(projectPath, newEntityFilePath),
-			make_model_template.ModelGoTemplate,
+			make_model_template.BlankModelGoTemplate,
 			projectGlobalTemplateConfig,
 		)
 		if err != nil {
 			return err
 		}
+	}
+
+	injector.InjectModelNewModel(
+		filepath.Join(projectPath, newEntityFilePath),
+		entity,
+	)
+
+	err = utils.GoImportFormatFile(filepath.Join(projectPath, newEntityFilePath))
+	if err != nil {
+		return err
 	}
 
 	err = utils.GoFmt(projectPath)

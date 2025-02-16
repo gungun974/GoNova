@@ -14,7 +14,8 @@ import (
 const APP_ERRROR_STRUCT_NAME string = "AppError"
 
 type AnalyzedEntity struct {
-	Name string
+	Name     string
+	FilePath string
 }
 
 func AnalyzeProjectEntities() []AnalyzedEntity {
@@ -83,7 +84,8 @@ func AnalyzeProjectEntities() []AnalyzedEntity {
 			}
 
 			entities = append(entities, AnalyzedEntity{
-				Name: ident.Name,
+				Name:     ident.Name,
+				FilePath: pkg.Fset.Position(obj.Pos()).Filename,
 			})
 		}
 	}

@@ -5,7 +5,16 @@ import (
 	"text/template"
 )
 
-//go:embed model.go.tmpl
-var modelGoFile []byte
+//go:embed blank_model.go.tmpl
+var blankModelGoFile []byte
 
-var ModelGoTemplate = template.Must(template.New("make:model.go").Parse(string(modelGoFile)))
+var BlankModelGoTemplate = template.Must(
+	template.New("make:blank_model.go").Parse(string(blankModelGoFile)),
+)
+
+//go:embed inject_model.go.tmpl
+var injectjodelGoFile []byte
+
+var InjectModelGoTemplate = template.Must(
+	template.New("make:inject_model.go").Parse(string(injectjodelGoFile)),
+)
