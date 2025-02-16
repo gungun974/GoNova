@@ -73,9 +73,16 @@ func InjectModelNewModel(path string, entity analyzer.AnalyzedEntity) {
 				if !field.Exported() {
 					continue
 				}
+
+				fieldName := helpers.LowerFirstLetter(field.Name())
+
+				if fieldName == "type" {
+					fieldName = "typed"
+				}
+
 				x.Elts = append(x.Elts, &dst.KeyValueExpr{
 					Key:   dst.NewIdent(field.Name()),
-					Value: dst.NewIdent(helpers.LowerFirstLetter(field.Name())),
+					Value: dst.NewIdent(fieldName),
 					Decs: dst.KeyValueExprDecorations{
 						NodeDecs: dst.NodeDecs{
 							After: dst.NewLine,
