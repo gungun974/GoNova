@@ -21,7 +21,7 @@ func MakeModel(entity analyzer.AnalyzedEntity) error {
 		logger.MainLogger.Fatalf("Can't parse go mod : %v", err)
 	}
 
-	newEntityFilePath := fmt.Sprintf(
+	newModelFilePath := fmt.Sprintf(
 		"/internal/layers/data/models/%s.go",
 		path.Base(entity.FilePath),
 	)
@@ -34,9 +34,9 @@ func MakeModel(entity analyzer.AnalyzedEntity) error {
 		ProjectName: projectName,
 	}
 
-	if _, err := os.Stat(filepath.Join(projectPath, newEntityFilePath)); err != nil {
+	if _, err := os.Stat(filepath.Join(projectPath, newModelFilePath)); err != nil {
 		err = utils.CreateFileFromTemplate(
-			filepath.Join(projectPath, newEntityFilePath),
+			filepath.Join(projectPath, newModelFilePath),
 			make_model_template.BlankModelGoTemplate,
 			projectGlobalTemplateConfig,
 		)
@@ -46,16 +46,16 @@ func MakeModel(entity analyzer.AnalyzedEntity) error {
 	}
 
 	injector.InjectModelNewModel(
-		filepath.Join(projectPath, newEntityFilePath),
+		filepath.Join(projectPath, newModelFilePath),
 		entity,
 	)
 
-	err = utils.GoImportFormatFile(filepath.Join(projectPath, newEntityFilePath))
+	err = utils.GoImports(filepath.Join(projectPath, newModelFilePath))
 	if err != nil {
 		return err
 	}
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoFumpt(filepath.Join(projectPath, newModelFilePath))
 	if err != nil {
 		return err
 	}

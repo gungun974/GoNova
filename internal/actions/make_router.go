@@ -58,7 +58,22 @@ func MakeRouter(routerName string, urlMountPath string) error {
 		projectGlobalTemplateConfig.RouteURL,
 	)
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoImports(filepath.Join(projectPath, newRouteFilePath))
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(filepath.Join(projectPath, newRouteFilePath))
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoImports(filepath.Join(projectPath, "/internal/routes/routes.go"))
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(filepath.Join(projectPath, "/internal/routes/routes.go"))
 	if err != nil {
 		return err
 	}

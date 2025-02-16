@@ -100,7 +100,12 @@ func InstallPostgreDatabase() error {
 		filepath.Join(projectPath, "/internal/container.go"),
 	)
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoImports(projectPath)
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(projectPath)
 	if err != nil {
 		return err
 	}
@@ -187,7 +192,12 @@ func InstallSqliteDatabase() error {
 		filepath.Join(projectPath, "/internal/container.go"),
 	)
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoImports(projectPath)
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(projectPath)
 	if err != nil {
 		return err
 	}

@@ -68,7 +68,7 @@ func MakeUsecase(usecaseName string) error {
 		return err
 	}
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoFumpt(projectPath)
 	if err != nil {
 		return err
 	}

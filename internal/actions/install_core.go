@@ -538,7 +538,12 @@ func InstallCore(rawProjectName string) error {
 		return err
 	}
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoImports(projectPath)
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(projectPath)
 	if err != nil {
 		return err
 	}

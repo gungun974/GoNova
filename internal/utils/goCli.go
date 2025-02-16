@@ -20,16 +20,6 @@ func GoGetPackage(appDir string, packageName string) error {
 	return nil
 }
 
-func GoFmt(appDir string) error {
-	if err := ExecuteCmd("go",
-		[]string{"run", "mvdan.cc/gofumpt@latest", "-w", "."},
-		appDir); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 func GoTidy(appDir string) error {
 	err := ExecuteCmd("go", []string{"mod", "tidy"}, appDir)
 	if err != nil {

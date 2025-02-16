@@ -49,7 +49,12 @@ func MakeEntity(entityName string) error {
 		helpers.CapitalizeFirstLetter(entityName),
 	)
 
-	err = utils.GoFmt(projectPath)
+	err = utils.GoImports(filepath.Join(projectPath, newEntityFilePath))
+	if err != nil {
+		return err
+	}
+
+	err = utils.GoFumpt(filepath.Join(projectPath, newEntityFilePath))
 	if err != nil {
 		return err
 	}
