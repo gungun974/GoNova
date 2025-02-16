@@ -84,6 +84,10 @@ func AnalyzeProjectEntities() []AnalyzedEntity {
 				}
 			}
 
+			if !typeName.Exported() {
+				continue
+			}
+
 			entity := AnalyzedEntity{
 				Name:     ident.Name,
 				FilePath: pkg.Fset.Position(obj.Pos()).Filename,
