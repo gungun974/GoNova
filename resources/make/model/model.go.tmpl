@@ -1,0 +1,23 @@
+package data_models
+
+import (
+	"{{.ProjectName}}/internal/layers/domain/entities"
+)
+
+type {{.ModelsName}} []{{.ModelName}}
+
+func (s {{.ModelsName}}) To{{.EntitiesName}}() []entities.{{.EntityName}} {
+	e := make([]entities.{{.EntityName}}, 0, len(s))
+
+	for _, m := range s {
+		e = append(e, m.To{{.EntityName}}())
+	}
+
+	return e
+}
+
+type {{.ModelName}} struct {}
+
+func (m *{{.ModelName}}) To{{.EntityName}}() entities.{{.EntityName}} {
+	return entities.{{.EntityName}}{}
+}

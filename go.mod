@@ -10,6 +10,7 @@ require (
 	github.com/charmbracelet/bubbletea v1.3.3
 	github.com/charmbracelet/lipgloss v1.0.0
 	github.com/dave/dst v0.27.3
+	github.com/jinzhu/inflection v1.0.0
 	github.com/lithammer/fuzzysearch v1.1.8
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0
