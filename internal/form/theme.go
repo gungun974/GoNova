@@ -14,6 +14,10 @@ var (
 	Title      = lipgloss.AdaptiveColor{Light: light.Mauve().Hex, Dark: dark.Mauve().Hex}
 
 	Selected = lipgloss.AdaptiveColor{Light: light.Pink().Hex, Dark: dark.Pink().Hex}
+
+	Line = lipgloss.AdaptiveColor{Light: light.Surface1().Hex, Dark: dark.Surface1().Hex}
+
+	Info = lipgloss.AdaptiveColor{Light: light.Rosewater().Hex, Dark: dark.Rosewater().Hex}
 )
 
 var titleStyle = lipgloss.NewStyle().
@@ -29,3 +33,9 @@ var cursorStyle = lipgloss.NewStyle().
 var selectedStyle = lipgloss.NewStyle().
 	Foreground(Selected).
 	Bold(true)
+
+var lineStyle = lipgloss.NewStyle().
+	Foreground(Line)
+
+var infoStyle = lipgloss.NewStyle().
+	Foreground(Info)
