@@ -74,8 +74,10 @@ func (m choiceSearchModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			*m.exit = true
 			return m, tea.Quit
 		case "enter":
-			*m.output = m.filteredChoices[m.cursor].Value
-			return m, tea.Quit
+			if len(m.filteredChoices) != 0 {
+				*m.output = m.filteredChoices[m.cursor].Value
+				return m, tea.Quit
+			}
 		}
 	}
 	m.searchInput, cmd = m.searchInput.Update(msg)
@@ -117,10 +119,13 @@ func (m choiceSearchModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cursor = 0
 			}
 		}
+	}
 
-		if m.cursor >= len(m.filteredChoices) {
-			m.cursor = len(m.filteredChoices) - 1
-		}
+	if m.cursor >= len(m.filteredChoices) {
+		m.cursor = len(m.filteredChoices) - 1
+	}
+	if len(m.filteredChoices) == 0 {
+		m.cursor = 0
 	}
 	return m, cmd
 }
