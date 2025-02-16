@@ -19,6 +19,10 @@ type AnalyzedEntity struct {
 	Fields   []*types.Var
 }
 
+func (a AnalyzedEntity) Equal(b AnalyzedEntity) bool {
+	return a.Name == b.Name && a.FilePath == b.FilePath
+}
+
 func AnalyzeProjectEntities() []AnalyzedEntity {
 	entities := []AnalyzedEntity{}
 

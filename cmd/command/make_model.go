@@ -21,10 +21,18 @@ var makeModelCmd = &cobra.Command{
 
 func MakeModel(cmd *cobra.Command, args []string) {
 	entities := analyzer.AnalyzeProjectEntities()
+	models := analyzer.AnalyzeProjectModels(entities)
 
 	choices := []form.Choice{}
 
+entity_loop:
 	for _, entity := range entities {
+		for _, model := range models {
+			if entity.Equal(model.Entity) {
+				continue entity_loop
+			}
+		}
+
 		choices = append(choices, form.Choice{
 			Name:  entity.Name,
 			Value: entity.Name,
@@ -48,6 +56,12 @@ func MakeModel(cmd *cobra.Command, args []string) {
 		selectedEntity = &entity
 
 		break
+	}
+
+	for _, model := range models {
+		if selectedEntity.Equal(model.Entity) {
+			logger.MainLogger.Logger.Fatalf("Entity with model \"%s\" already exist", model.Name)
+		}
 	}
 
 	if selectedEntity == nil {
