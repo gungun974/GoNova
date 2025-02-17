@@ -27,6 +27,8 @@ build-server: build-server-prepare
 
 debug:
 	templ generate
+	rm -rf ./build/public
+	ln -s ../public/ ./build/public
 	$(GO) build -tags debug -o ${DEST}$(SERVER_BINARY) ./cmd/server/.
 
 run: build-server
