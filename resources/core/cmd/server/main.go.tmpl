@@ -1,8 +1,6 @@
 package main
 
 import (
-	"html/template"
-	"io"
 	"net/http"
 	"os"
 
@@ -13,18 +11,6 @@ import (
 
 	"github.com/joho/godotenv"
 )
-
-type TemplateRenderer struct {
-	templates *template.Template
-}
-
-func (t *TemplateRenderer) Render(
-	w io.Writer,
-	name string,
-	data interface{},
-) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
 
 func main() {
 	err := godotenv.Load()
