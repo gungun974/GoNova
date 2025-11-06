@@ -3,8 +3,8 @@ package actions
 import (
 	"fmt"
 	"os"
-	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/gungun974/gonova/internal/analyzer"
 	"github.com/gungun974/gonova/internal/injector"
@@ -21,9 +21,13 @@ func MakeModel(entity analyzer.AnalyzedEntity) error {
 		logger.MainLogger.Fatalf("Can't parse go mod : %v", err)
 	}
 
+	filename := filepath.Base(entity.FilePath)
+
+	name := strings.TrimSuffix(filename, filepath.Ext(filename))
+
 	newModelFilePath := fmt.Sprintf(
 		"/internal/layers/data/models/%s.go",
-		path.Base(entity.FilePath),
+		name,
 	)
 
 	logger.MainLogger.Info("Make Model")
