@@ -51,7 +51,6 @@
           [
             (golangci-lint.override {buildGo125Module = buildGo125Module;})
             go_1_25
-            watchexec
           ]
           ++ lib.optionals stdenv.isDarwin [
             apple-sdk_15

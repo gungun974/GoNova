@@ -6,7 +6,7 @@ build:
 	go build -o gonova ./cmd/main.go
 
 dev:
-	watchexec -e go -e tmpl go build -o gonova ./cmd/main.go
+	gonova watchexec -e go -e tmpl go build -o gonova ./cmd/main.go
 
 clean:
 	go clean

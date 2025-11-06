@@ -34,10 +34,6 @@ var (
 )
 
 func init() {
-	watchCmd := &cobra.Command{Use: "watcher"}
-
-	watchCmd.AddCommand(watchExecCmd)
-
 	watchExecCmd.Flags().StringSliceVarP(&watchExtensions, "ext", "e", []string{}, "Watch files by extension (with or without the prefix dot)")
 	watchExecCmd.Flags().StringSliceVarP(&watchFilters, "filter", "f", []string{}, "Watch files by filename/path using a glob-like pattern")
 	watchExecCmd.Flags().StringSliceVarP(&watchIgnores, "ignore", "i", []string{}, "Ignore files by filename/path using a glob-like pattern")
@@ -53,17 +49,17 @@ func init() {
 
 	watchExecCmd.Flags().SetInterspersed(false)
 
-	rootCmd.AddCommand(watchCmd)
+	rootCmd.AddCommand(watchExecCmd)
 }
 
 var watchExecCmd = &cobra.Command{
 	Use:   "watchexec",
-	Short: "Watch exec a command",
-	Run:   WatchExectCmd,
+	Short: "Watch files and re-run a command on changes",
+	Run:   WatchExecCmd,
 	Args:  cobra.MinimumNArgs(1),
 }
 
-func WatchExectCmd(_ *cobra.Command, args []string) {
+func WatchExecCmd(_ *cobra.Command, args []string) {
 	if !watchNoDefaultIgnore {
 		sep := string(filepath.Separator)
 
