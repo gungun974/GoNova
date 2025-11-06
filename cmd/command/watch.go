@@ -1,11 +1,17 @@
 package command
 
 import (
+	"bufio"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"os/signal"
 	"path/filepath"
+	"regexp"
+	"strings"
+	"sync"
 	"syscall"
 	"time"
 
@@ -24,6 +30,7 @@ var (
 	processKillDelay     = 0
 	processRestartDelay  = 0
 	restartDebounceDelay = 0
+	templDevMode         bool
 )
 
 func init() {
@@ -41,6 +48,8 @@ func init() {
 	watchExecCmd.Flags().IntVar(&processKillDelay, "kill-delay", 500, "Delay in ms after sending interrupt before killing the current process")
 	watchExecCmd.Flags().IntVar(&processRestartDelay, "restart-delay", 0, "Delay in ms before restarting the process after stopping")
 	watchExecCmd.Flags().IntVar(&restartDebounceDelay, "debounce", 10, "Delay in ms to debounce restarts when files change")
+
+	watchExecCmd.Flags().BoolVar(&templDevMode, "templ-dev-mode", false, "Enable environement variable and run templ watch for extra faster page reload")
 
 	watchExecCmd.Flags().SetInterspersed(false)
 
@@ -75,6 +84,41 @@ func WatchExectCmd(_ *cobra.Command, args []string) {
 			fmt.Sprintf("**%s.pijul%s**", sep, sep),
 			fmt.Sprintf("**%s.svn%s**", sep, sep),
 		)
+	}
+
+	var templWatchCmd *exec.Cmd
+	var templWatchStderr io.ReadCloser
+
+	if templDevMode {
+		os.Setenv("TEMPL_DEV_MODE", "true")
+		os.Setenv("TEMPL_DEV_MODE_ROOT", "./tmp/")
+
+		utils.CreateDirectory("tmp")
+
+		templWatchCmd = utils.PrepareCmd("templ",
+			[]string{
+				"generate",
+				"--watch",
+				"--log-level", "debug",
+				"--open-browser=false",
+				"--watch-pattern", `(.+\.templ$)|(.+_templ\.txt$)`,
+			},
+			".",
+		)
+
+		templWatchCmd.Stderr = nil
+
+		var err error
+
+		templWatchStderr, err = templWatchCmd.StderrPipe()
+		if err != nil {
+			logger.WatcherLogger.Fatalf("Fail to start get templ stdout %v", err)
+		}
+
+		err = templWatchCmd.Start()
+		if err != nil {
+			logger.WatcherLogger.Fatalf("Fail to start templ watch process %v", err)
+		}
 	}
 
 	var cmd *exec.Cmd
@@ -157,12 +201,11 @@ func WatchExectCmd(_ *cobra.Command, args []string) {
 	}
 
 	var debounceTimer *time.Timer
+	var debounceLock sync.Mutex
 
-	watch.WatchNewFiles(watch.WatcherConfig{
-		Extensions: watchExtensions,
-		Filter:     watchFilters,
-		Ignore:     watchIgnores,
-	}, func() {
+	debounce := func() {
+		debounceLock.Lock()
+		defer debounceLock.Unlock()
 		if debounceTimer != nil {
 			debounceTimer.Stop()
 		}
@@ -170,5 +213,49 @@ func WatchExectCmd(_ *cobra.Command, args []string) {
 		debounceTimer = time.AfterFunc(time.Duration(restartDebounceDelay)*time.Millisecond, func() {
 			restart()
 		})
+	}
+
+	if templDevMode {
+		go func() {
+			scanner := bufio.NewScanner(templWatchStderr)
+			for scanner.Scan() {
+				line := scanner.Text()
+
+				if strings.Contains(line, "Generated code") {
+					fmt.Fprintln(os.Stderr, line)
+				}
+
+				if !strings.Contains(line, "Post-generation event received") {
+					continue
+				}
+
+				matches := regexp.MustCompile(`needsRestart=(\w+).*needsBrowserReload=(\w+)`).FindStringSubmatch(line)
+				if len(matches) == 3 {
+					needRestart := matches[1] == "true"
+					needBrowserReload := matches[2] == "true"
+
+					if needRestart {
+						debounce()
+					} else if needBrowserReload {
+						resp, err := http.Get("http://127.0.0.1:5174/trigger-refresh")
+						if err == nil {
+							resp.Body.Close()
+						}
+					}
+				}
+			}
+
+			if err := scanner.Err(); err != nil {
+				logger.WatcherLogger.Errorf("Failed to scan templ output: %v", err)
+			}
+		}()
+	}
+
+	watch.WatchNewFiles(watch.WatcherConfig{
+		Extensions: watchExtensions,
+		Filter:     watchFilters,
+		Ignore:     watchIgnores,
+	}, func() {
+		debounce()
 	})
 }

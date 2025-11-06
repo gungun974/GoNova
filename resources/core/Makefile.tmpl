@@ -29,7 +29,6 @@ debug-run: debug
 	./build/server
 
 debug:
-	templ generate
 	rm -rf ./build/public
 	mkdir -p ./build
 	rm -rf ./build/public
@@ -44,6 +43,7 @@ dev:
 
 watchGo:
 	gonova watcher watchexec \
+    --templ-dev-mode \
     -i "assets" \
     -i "build" \
     -i "vendor" \
@@ -57,11 +57,10 @@ watchGo:
     -i "resources/mails/node_modules" \
     -i "*_templ.go" \
     -e go \
-    -e templ \
     -e tpl \
     -e tmpl \
     -e html \
-	make debug-run
+	${MAKE} debug-run
 
 watchVite:
 	pnpm vite --host --cors true
