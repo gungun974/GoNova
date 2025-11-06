@@ -23,7 +23,7 @@
       };
     in {
       packages = {
-        default = pkgs.buildGo123Module {
+        default = pkgs.buildGo125Module {
           pname = "gonova";
           version = "1.0.0";
           src = gitignore.lib.gitignoreSource ./.;
@@ -45,11 +45,11 @@
       };
 
       devShell = pkgs.mkShell {
-        GOROOT = "${pkgs.go_1_23}/share/go";
+        GOROOT = "${pkgs.go_1_25}/share/go";
 
         buildInputs = with pkgs; [
-          (golangci-lint.override {buildGo123Module = buildGo123Module;})
-          go_1_23
+          (golangci-lint.override {buildGo125Module = buildGo125Module;})
+          go_1_25
           watchexec
         ];
       };

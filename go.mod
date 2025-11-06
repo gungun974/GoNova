@@ -1,8 +1,8 @@
 module github.com/gungun974/gonova
 
-go 1.23.0
+go 1.25
 
-toolchain go1.23.2
+toolchain go1.25.4
 
 require (
 	github.com/catppuccin/go v0.3.0
