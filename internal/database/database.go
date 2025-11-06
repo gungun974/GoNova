@@ -41,7 +41,7 @@ func getMigrateInstance() *migrate.Migrate {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	if databaseURL == "" {
-		logger.DatabaseLogger.Fatalln("DATABASE_URL is not set")
+		logger.DatabaseLogger.Fatal("DATABASE_URL is not set")
 	}
 
 	m, err := migrate.New(fmt.Sprintf("file://%s", getMigrationSourcePath()), databaseURL)

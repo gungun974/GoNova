@@ -60,12 +60,12 @@ entity_loop:
 
 	for _, model := range models {
 		if selectedEntity.Equal(model.Entity) {
-			logger.MainLogger.Logger.Fatalf("Entity with model \"%s\" already exist", model.Name)
+			logger.MainLogger.Fatalf("Entity with model \"%s\" already exist", model.Name)
 		}
 	}
 
 	if selectedEntity == nil {
-		logger.MainLogger.Logger.Fatalf("Can't find the entity \"%s\"", entityName)
+		logger.MainLogger.Fatalf("Can't find the entity \"%s\"", entityName)
 		return
 	}
 

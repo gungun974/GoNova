@@ -34,7 +34,7 @@ func AnalyzeProjectEntities() []AnalyzedEntity {
 		"./internal/layers/domain/entities/...",
 	)
 	if err != nil {
-		logger.MainLogger.Logger.Fatal(err)
+		logger.MainLogger.Fatal(err)
 	}
 
 	var appErrorType *types.Named

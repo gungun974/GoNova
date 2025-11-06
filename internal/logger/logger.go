@@ -9,6 +9,101 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+type AppLogger struct {
+	entry *log.Entry
+}
+
+func newAppLogger(name string) AppLogger {
+	return AppLogger{
+		entry: log.WithField("logger", name),
+	}
+}
+
+// Log will log a message at the level given as parameter.
+// Warning: using Log at Panic or Fatal level will not respectively Panic nor Exit.
+// For this behaviour Entry.Panic or Entry.Fatal should be used instead.
+func (l *AppLogger) Log(level log.Level, args ...any) {
+	l.entry.Log(level, args...)
+}
+
+func (l *AppLogger) Trace(args ...any) {
+	l.entry.Trace(args...)
+}
+
+func (l *AppLogger) Debug(args ...any) {
+	l.entry.Debug(args...)
+}
+
+func (l *AppLogger) Print(args ...any) {
+	l.entry.Print(args...)
+}
+
+func (l *AppLogger) Info(args ...any) {
+	l.entry.Info(args...)
+}
+
+func (l *AppLogger) Warn(args ...any) {
+	l.entry.Warn(args...)
+}
+
+func (l *AppLogger) Warning(args ...any) {
+	l.entry.Warning(args...)
+}
+
+func (l *AppLogger) Error(args ...any) {
+	l.entry.Error(args...)
+}
+
+func (l *AppLogger) Fatal(args ...any) {
+	l.entry.Fatal(args...)
+}
+
+func (l *AppLogger) Panic(args ...any) {
+	l.entry.Panic(args...)
+}
+
+// Entry Printf family functions
+
+func (l *AppLogger) Logf(level log.Level, format string, args ...any) {
+	l.entry.Logf(level, format, args...)
+}
+
+func (l *AppLogger) Tracef(format string, args ...any) {
+	l.entry.Tracef(format, args...)
+}
+
+func (l *AppLogger) Debugf(format string, args ...any) {
+	l.entry.Debugf(format, args...)
+}
+
+func (l *AppLogger) Infof(format string, args ...any) {
+	l.entry.Infof(format, args...)
+}
+
+func (l *AppLogger) Printf(format string, args ...any) {
+	l.entry.Printf(format, args...)
+}
+
+func (l *AppLogger) Warnf(format string, args ...any) {
+	l.entry.Warnf(format, args...)
+}
+
+func (l *AppLogger) Warningf(format string, args ...any) {
+	l.entry.Warningf(format, args...)
+}
+
+func (l *AppLogger) Errorf(format string, args ...any) {
+	l.entry.Errorf(format, args...)
+}
+
+func (l *AppLogger) Fatalf(format string, args ...any) {
+	l.entry.Fatalf(format, args...)
+}
+
+func (l *AppLogger) Panicf(format string, args ...any) {
+	l.entry.Panicf(format, args...)
+}
+
 type customFormatter struct{}
 
 var projectSourceFolder = ""
@@ -39,7 +134,7 @@ func (f *customFormatter) Format(entry *log.Entry) ([]byte, error) {
 		loggerName = "unknown"
 	}
 
-	return []byte(fmt.Sprintf(
+	return fmt.Appendf(nil,
 		"%s %-20s %-40s %-24s %s\n",
 		entry.Time.Format("2006-01-02 15:04:05.000"),
 		fmt.Sprintf("%s\x1b[1m%s\x1b[0m", levelColor, levelText),
@@ -50,7 +145,7 @@ func (f *customFormatter) Format(entry *log.Entry) ([]byte, error) {
 		),
 		fmt.Sprintf("\x1b[1m%s\x1b[0m", loggerName),
 		entry.Message,
-	)), nil
+	), nil
 }
 
 func init() {
@@ -64,12 +159,12 @@ func init() {
 	}
 }
 
-var MainLogger = log.WithField("logger", "MainLogger")
+var MainLogger = newAppLogger("MainLogger")
 
-var DatabaseLogger = log.WithField("logger", "DatabaseLogger")
+var DatabaseLogger = newAppLogger("DatabaseLogger")
 
-var WatcherLogger = log.WithField("logger", "WatcherLogger")
+var WatcherLogger = newAppLogger("WatcherLogger")
 
-var CommandLogger = log.WithField("logger", "CommandLogger")
+var CommandLogger = newAppLogger("CommandLogger")
 
-var InjectorLogger = log.WithField("logger", "InjectorLogger")
+var InjectorLogger = newAppLogger("InjectorLogger")

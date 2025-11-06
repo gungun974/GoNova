@@ -28,7 +28,7 @@ func AnalyzeProjectModels(entities []AnalyzedEntity) []AnalyzedModel {
 		"./internal/layers/data/models/...",
 	)
 	if err != nil {
-		logger.MainLogger.Logger.Fatal(err)
+		logger.MainLogger.Fatal(err)
 	}
 
 	for _, pkg := range pkgs {
