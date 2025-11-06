@@ -47,11 +47,15 @@
       devShell = pkgs.mkShell {
         GOROOT = "${pkgs.go_1_25}/share/go";
 
-        buildInputs = with pkgs; [
-          (golangci-lint.override {buildGo125Module = buildGo125Module;})
-          go_1_25
-          watchexec
-        ];
+        buildInputs = with pkgs;
+          [
+            (golangci-lint.override {buildGo125Module = buildGo125Module;})
+            go_1_25
+            watchexec
+          ]
+          ++ lib.optionals stdenv.isDarwin [
+            apple-sdk_15
+          ];
       };
     });
 }
