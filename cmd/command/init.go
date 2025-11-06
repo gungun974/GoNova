@@ -29,7 +29,7 @@ func InitNova(cmd *cobra.Command, args []string) {
 		projectName = args[0]
 	}
 
-	database := form.AskChoice("Do you want to install a Database module :", []form.Choice{
+	database := form.AskChoice("Do you want to install a Database module :", []form.Choice[string]{
 		{
 			Name:  "No",
 			Value: "none",

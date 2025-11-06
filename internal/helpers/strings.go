@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"regexp"
 	"strings"
 	"unicode"
 )
@@ -28,9 +27,51 @@ func LowerFirstLetter(s string) string {
 	return string(runes)
 }
 
-func ToSnakeCase(input string) string {
-	re := regexp.MustCompile(`([a-z0-9])([A-Z])`)
-	snake := re.ReplaceAllString(input, `${1}_${2}`)
+func ToSnakeCase(s string) string {
+	var result []rune
+	var prev rune
 
-	return strings.ToLower(snake)
+	for i, r := range s {
+		if r == ' ' || r == '-' {
+			if len(result) > 0 && result[len(result)-1] != '_' {
+				result = append(result, '_')
+			}
+			prev = r
+			continue
+		}
+
+		if unicode.IsUpper(r) {
+			lower := unicode.ToLower(r)
+
+			if i > 0 && (unicode.IsLower(prev) || unicode.IsDigit(prev)) {
+				if len(result) > 0 && result[len(result)-1] != '_' {
+					result = append(result, '_')
+				}
+			}
+
+			if i > 0 && unicode.IsUpper(prev) {
+				if i+1 < len(s) {
+					next := rune(s[i+1])
+					if unicode.IsLower(next) {
+						if len(result) > 0 && result[len(result)-1] != '_' {
+							result = append(result, '_')
+						}
+					}
+				}
+			}
+
+			result = append(result, lower)
+		} else {
+			if r == '_' && len(result) > 0 && result[len(result)-1] == '_' {
+				continue
+			}
+			result = append(result, unicode.ToLower(r))
+		}
+
+		prev = r
+	}
+
+	snake := string(result)
+	snake = strings.Trim(snake, "_")
+	return snake
 }

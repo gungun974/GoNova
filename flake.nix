@@ -28,7 +28,7 @@
           version = "1.0.0";
           src = gitignore.lib.gitignoreSource ./.;
           subPackages = ["cmd"];
-          vendorHash = "sha256-8hdwUjU2uLELS33ulw5gm66VtsyRti9nca5QRM5XfUA=";
+          vendorHash = "sha256-ybpEk5jwAMB4gVd/jjPPYqlzNqCwq0n/9hVIsrzjUFE=";
 
           flags = [
             "-trimpath"

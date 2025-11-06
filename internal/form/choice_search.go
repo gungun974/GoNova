@@ -12,19 +12,18 @@ import (
 	"golang.org/x/term"
 )
 
-type choiceSearchModel struct {
+type choiceSearchModel[T any] struct {
 	searchInput     textinput.Model
-	output          *string
+	output          *T
 	cursor          int
-	choices         []Choice
-	filteredChoices []Choice
+	choices         []Choice[T]
+	filteredChoices []Choice[T]
 	header          string
 	exit            *bool
 }
 
-func AskChoiceSearch(question string, choices []Choice) string {
-	output := ""
-
+func AskChoiceSearch[T any](question string, choices []Choice[T]) T {
+	var output T
 	hasExit := false
 
 	tprogram := tea.NewProgram(
@@ -39,18 +38,18 @@ func AskChoiceSearch(question string, choices []Choice) string {
 	return output
 }
 
-func initialChoiceSearchModel(
-	output *string,
+func initialChoiceSearchModel[T any](
+	output *T,
 	header string,
-	choices []Choice,
+	choices []Choice[T],
 	hasExit *bool,
-) choiceSearchModel {
+) choiceSearchModel[T] {
 	ti := textinput.New()
 	ti.Prompt = "/ "
 	ti.Focus()
 	ti.TextStyle = ti.TextStyle.Bold(true)
 
-	return choiceSearchModel{
+	return choiceSearchModel[T]{
 		searchInput:     ti,
 		output:          output,
 		choices:         choices,
@@ -60,11 +59,11 @@ func initialChoiceSearchModel(
 	}
 }
 
-func (m choiceSearchModel) Init() tea.Cmd {
+func (m choiceSearchModel[T]) Init() tea.Cmd {
 	return textinput.Blink
 }
 
-func (m choiceSearchModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m choiceSearchModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -98,7 +97,7 @@ func (m choiceSearchModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			sort.Sort(ranks)
 
-			m.filteredChoices = make([]Choice, len(ranks))
+			m.filteredChoices = make([]Choice[T], len(ranks))
 
 			for i, rank := range ranks {
 				m.filteredChoices[i] = m.choices[rank.OriginalIndex]
@@ -130,7 +129,7 @@ func (m choiceSearchModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m choiceSearchModel) View() string {
+func (m choiceSearchModel[T]) View() string {
 	s := m.header + "\n"
 
 	s += m.searchInput.View() + "\n"

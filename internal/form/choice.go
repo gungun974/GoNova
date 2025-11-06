@@ -7,27 +7,27 @@ import (
 	"github.com/gungun974/gonova/internal/logger"
 )
 
-type Choice struct {
+type Choice[T any] struct {
 	Name  string
-	Value string
+	Value T
 }
 
-type choiceModel struct {
-	output  *string
+type choiceModel[T any] struct {
+	output  *T
 	cursor  int
-	choices []Choice
+	choices []Choice[T]
 	header  string
 	exit    *bool
 }
 
-func AskChoice(question string, choices []Choice) string {
-	output := ""
-
+func AskChoice[T any](question string, choices []Choice[T]) T {
+	var output T
 	hasExit := false
 
 	tprogram := tea.NewProgram(
 		initialChoiceModel(&output, question, choices, &hasExit),
 	)
+
 	if _, err := tprogram.Run(); err != nil {
 		logger.MainLogger.Fatal(err)
 	}
@@ -37,13 +37,13 @@ func AskChoice(question string, choices []Choice) string {
 	return output
 }
 
-func initialChoiceModel(
-	output *string,
+func initialChoiceModel[T any](
+	output *T,
 	header string,
-	choices []Choice,
+	choices []Choice[T],
 	hasExit *bool,
-) choiceModel {
-	return choiceModel{
+) choiceModel[T] {
+	return choiceModel[T]{
 		output:  output,
 		choices: choices,
 		header:  titleStyle.Render(header),
@@ -51,11 +51,11 @@ func initialChoiceModel(
 	}
 }
 
-func (m choiceModel) Init() tea.Cmd {
+func (m choiceModel[T]) Init() tea.Cmd {
 	return nil
 }
 
-func (m choiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m choiceModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
@@ -82,7 +82,7 @@ func (m choiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m choiceModel) View() string {
+func (m choiceModel[T]) View() string {
 	s := m.header + "\n"
 
 	for i, choice := range m.choices {

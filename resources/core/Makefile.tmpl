@@ -53,27 +53,19 @@ clean-build:
 	rm -rf $(DEST)
 
 migrate: 
-	migrate -database $(DATABASE_URL) \
-		-path ./internal/database/migrations up
+	gonova migrate up
 
 migrate-down: 
-	migrate -database $(DATABASE_URL) \
-		-path ./internal/database/migrations down
+	gonova migrate down --force
 
 migrate-create: 
-	@echo -n "Name for migration to create : "
-	@read name; \
-	migrate create -ext sql -dir ./internal/database/migrations -tz UTC $$name
+	gonova migrate create
 
 migrate-force: 
-	@echo -n "Version to migrate force : "
-	@read version; \
-	migrate -database $(DATABASE_URL) \
-		-path ./internal/database/migrations force $$version
+	gonova migrate force --force
 
 migrate-drop: 
-	migrate -database $(DATABASE_URL) \
-		-path ./internal/database/migrations drop
+	gonova migrate drop --force
 
 lint:
 	${MAKE} -j3 lint-go lint-js lint-typechecks

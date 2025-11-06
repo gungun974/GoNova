@@ -23,7 +23,7 @@ func MakeModel(cmd *cobra.Command, args []string) {
 	entities := analyzer.AnalyzeProjectEntities()
 	models := analyzer.AnalyzeProjectModels(entities)
 
-	choices := []form.Choice{}
+	choices := []form.Choice[string]{}
 
 entity_loop:
 	for _, entity := range entities {
@@ -33,7 +33,7 @@ entity_loop:
 			}
 		}
 
-		choices = append(choices, form.Choice{
+		choices = append(choices, form.Choice[string]{
 			Name:  entity.Name,
 			Value: entity.Name,
 		})

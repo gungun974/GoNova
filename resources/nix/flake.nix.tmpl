@@ -90,9 +90,6 @@
           go
           air
           templ
-          (go-migrate.overrideAttrs (finalAttrs: previousAttrs: {
-            tags = ["sqlite3" "sqlite" "postgres" "pgx"];
-          }))
         ];
       };
     });
