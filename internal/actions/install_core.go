@@ -84,15 +84,6 @@ func InstallCore(rawProjectName string) error {
 	}
 
 	err = utils.CreateFileFromTemplate(
-		filepath.Join(projectPath, "/.air.toml"),
-		core_template.AirTemplate,
-		projectGlobalTemplateConfig,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = utils.CreateFileFromTemplate(
 		filepath.Join(projectPath, "/.env"),
 		core_template.EnvTemplate,
 		projectGlobalTemplateConfig,

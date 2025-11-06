@@ -25,6 +25,9 @@ build-server-prepare:
 build-server: build-server-prepare
 	$(GO) build $(GOFLAGS) -o ${DEST}$(SERVER_BINARY) ./cmd/server/.
 
+debug-run: debug
+	./build/server
+
 debug:
 	templ generate
 	rm -rf ./build/public
@@ -40,7 +43,25 @@ dev:
 	${MAKE} -j2 watchGo watchVite
 
 watchGo:
-	air
+	gonova watcher watchexec \
+    -i "assets" \
+    -i "build" \
+    -i "vendor" \
+    -i "data" \
+    -i "storage" \
+    -i "mails" \
+    -i "node_modules" \
+    -i "resources/scripts" \
+    -i "resources/mails/.react-email" \
+    -i "resources/mails/out" \
+    -i "resources/mails/node_modules" \
+    -i "*_templ.go" \
+    -e go \
+    -e templ \
+    -e tpl \
+    -e tmpl \
+    -e html \
+	make debug-run
 
 watchVite:
 	pnpm vite --host --cors true

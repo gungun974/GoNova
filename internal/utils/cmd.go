@@ -13,12 +13,18 @@ func VerifyCmd(cmd string) bool {
 	return err == nil
 }
 
-func ExecuteCmd(name string, args []string, dir string) error {
+func PrepareCmd(name string, args []string, dir string) *exec.Cmd {
 	command := exec.Command(name, args...)
 	command.Dir = dir
 
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
+
+	return command
+}
+
+func ExecuteCmd(name string, args []string, dir string) error {
+	command := PrepareCmd(name, args, dir)
 
 	logger.CommandLogger.Infof("Run : %s %s", name, strings.Join(args, " "))
 
