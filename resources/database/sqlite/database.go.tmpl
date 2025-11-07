@@ -23,12 +23,12 @@ func Connect() *sqlx.DB {
 	databasePath := os.Getenv("DATABASE_PATH")
 
 	if databasePath == "" {
-		logger.DatabaseLogger.Fatalln("DATABASE_PATH is not set")
+		logger.DatabaseLogger.Fatal("DATABASE_PATH is not set")
 	}
 
 	db, err := sqlx.Connect("sqlite3", databasePath)
 	if err != nil {
-		logger.DatabaseLogger.Fatalln(err)
+		logger.DatabaseLogger.Fatal(err)
 	}
 
 	logger.DatabaseLogger.Info("📀 Database connection established successfully!")

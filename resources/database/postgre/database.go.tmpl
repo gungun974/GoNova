@@ -23,12 +23,12 @@ func Connect() *sqlx.DB {
 	databaseURL := os.Getenv("DATABASE_URL")
 
 	if databaseURL == "" {
-		logger.DatabaseLogger.Fatalln("DATABASE_URL is not set")
+		logger.DatabaseLogger.Fatal("DATABASE_URL is not set")
 	}
 
 	db, err := sqlx.Connect("pgx", databaseURL)
 	if err != nil {
-		logger.DatabaseLogger.Fatalln(err)
+		logger.DatabaseLogger.Fatal(err)
 	}
 
 	logger.DatabaseLogger.Info("📀 Database connection established successfully!")
