@@ -1,0 +1,15 @@
+package repositories
+
+import (
+	"github.com/jmoiron/sqlx"
+)
+
+func New{{.RepositoryName}}(db *sqlx.DB) {{.RepositoryName}} {
+	return {{.RepositoryName}}{
+		Database: db,
+	}
+}
+
+type {{.RepositoryName}} struct{
+	Database *sqlx.DB
+}
