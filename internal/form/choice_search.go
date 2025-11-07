@@ -13,13 +13,14 @@ import (
 )
 
 type choiceSearchModel[T any] struct {
-	searchInput     textinput.Model
-	output          *T
-	cursor          int
-	choices         []Choice[T]
-	filteredChoices []Choice[T]
-	header          string
-	exit            *bool
+	searchInput           textinput.Model
+	output                *T
+	cursor                int
+	choices               []Choice[T]
+	filteredChoices       []Choice[T]
+	header                string
+	exit                  *bool
+	alwaysShowFirstChoice bool
 }
 
 func AskChoiceSearch[T any](question string, choices []Choice[T]) T {
@@ -27,7 +28,23 @@ func AskChoiceSearch[T any](question string, choices []Choice[T]) T {
 	hasExit := false
 
 	tprogram := tea.NewProgram(
-		initialChoiceSearchModel(&output, question, choices, &hasExit),
+		initialChoiceSearchModel(&output, question, choices, &hasExit, false),
+	)
+	if _, err := tprogram.Run(); err != nil {
+		logger.MainLogger.Fatal(err)
+	}
+
+	handleExit(tprogram, hasExit)
+
+	return output
+}
+
+func AskChoiceSearchWithAlwaysShowFirstChoice[T any](question string, choices []Choice[T]) T {
+	var output T
+	hasExit := false
+
+	tprogram := tea.NewProgram(
+		initialChoiceSearchModel(&output, question, choices, &hasExit, true),
 	)
 	if _, err := tprogram.Run(); err != nil {
 		logger.MainLogger.Fatal(err)
@@ -43,6 +60,7 @@ func initialChoiceSearchModel[T any](
 	header string,
 	choices []Choice[T],
 	hasExit *bool,
+	alwaysShowFirstChoice bool,
 ) choiceSearchModel[T] {
 	ti := textinput.New()
 	ti.Prompt = "/ "
@@ -50,12 +68,13 @@ func initialChoiceSearchModel[T any](
 	ti.TextStyle = ti.TextStyle.Bold(true)
 
 	return choiceSearchModel[T]{
-		searchInput:     ti,
-		output:          output,
-		choices:         choices,
-		filteredChoices: choices,
-		header:          titleStyle.Render(header),
-		exit:            hasExit,
+		searchInput:           ti,
+		output:                output,
+		choices:               choices,
+		filteredChoices:       choices,
+		header:                titleStyle.Render(header),
+		exit:                  hasExit,
+		alwaysShowFirstChoice: alwaysShowFirstChoice,
 	}
 }
 
@@ -99,8 +118,17 @@ func (m choiceSearchModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			m.filteredChoices = make([]Choice[T], len(ranks))
 
+			containFirst := false
+
 			for i, rank := range ranks {
+				if rank.OriginalIndex == 0 {
+					containFirst = true
+				}
 				m.filteredChoices[i] = m.choices[rank.OriginalIndex]
+			}
+
+			if m.alwaysShowFirstChoice && !containFirst && len(m.choices) != 0 {
+				m.filteredChoices = append(m.filteredChoices, m.choices[0])
 			}
 		}
 

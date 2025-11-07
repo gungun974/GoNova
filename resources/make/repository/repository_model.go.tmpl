@@ -1,0 +1,93 @@
+package repositories
+
+import (
+	"{{.ProjectName}}/internal/layers/domain/entities"
+  data_models "{{.ProjectName}}/internal/layers/data/models"
+)
+
+func (r *{{.RepositoryName}}) GetAll{{.EntitiesName}}() ([]entities.{{.EntityName}}, error) {
+	m := data_models.{{.ModelsName}}{}
+
+	err := r.Database.Select(&m, `
+  `)
+	if err != nil {
+		logger.DatabaseLogger.Error(err)
+		return nil, err
+	}
+
+	return m.To{{.EntitiesName}}(), nil
+}
+
+func (r *{{.RepositoryName}}) Get{{.EntityName}}(
+	id {{.IdType}},
+) (*entities.{{.EntityName}}, error) {
+	m := data_models.{{.ModelName}}{}
+
+	err := r.Database.Get(&m, `
+  `, id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return nil, {{.EntityName}}NotFoundError
+		}
+		logger.DatabaseLogger.Error(err)
+		return nil, err
+	}
+
+	{{ lowerFirst .EntityName}} := m.To{{.EntityName}}()
+
+	return &{{ lowerFirst .EntityName}}, nil
+}
+
+func (r {{.RepositoryName}}) Create{{.EntityName}}({{ lowerFirst .EntityName}} *entities.{{.EntityName}}) error {
+	m := data_models.{{.ModelName}}{}
+
+	err := r.Database.Get(&m, `
+  `,
+	)
+	if err != nil {
+		logger.DatabaseLogger.Error(err)
+		return err
+	}
+
+	*{{ lowerFirst .EntityName}} = m.To{{.EntityName}}()
+
+	return nil
+}
+
+func (r {{.RepositoryName}}) Update{{.EntityName}}({{ lowerFirst .EntityName}} *entities.{{.EntityName}}) error {
+	m := data_models.{{.ModelName}}{}
+
+	err := r.Database.Get(&m, `
+  `,
+	)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return {{.EntityName}}NotFoundError
+		}
+		logger.DatabaseLogger.Error(err)
+		return err
+	}
+
+	*{{ lowerFirst .EntityName}} = m.To{{.EntityName}}()
+
+	return nil
+}
+
+func (r *{{.RepositoryName}}) Delete{{.EntityName}}(id {{.IdType}}) (*entities.{{.EntityName}}, error) {
+	e, err := r.Get{{.EntityName}}(id)
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = r.Database.Exec(`
+  `,
+		id,
+	)
+	if err != nil {
+		logger.DatabaseLogger.Error(err)
+		return nil, err
+	}
+
+	return e, nil
+}
+
