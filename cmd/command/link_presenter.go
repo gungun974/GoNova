@@ -53,7 +53,8 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 		logger.MainLogger.Fatalf("Can't find the presenter \"%s\"", presenterName)
 	}
 
-	usecases := analyzer.AnalyzeProjectUsecases()
+	repositories := analyzer.AnalyzeProjectRepositories()
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
 
 	usecaseChoices := []form.Choice[string]{}
 

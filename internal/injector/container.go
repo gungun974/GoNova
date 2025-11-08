@@ -3,6 +3,7 @@ package injector
 import (
 	"go/parser"
 	"go/token"
+	"strings"
 
 	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
@@ -233,5 +234,228 @@ func InjectContainerController(path string, controller analyzer.AnalyzedControll
 	err = writeDSTFileToPath(f, path)
 	if err != nil {
 		logger.InjectorLogger.Fatal(err)
+	}
+}
+
+func InjectContainerDependencies(path string, target analyzer.AnalyzedDependency) {
+	f, err := decorator.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	dependencies := target.GetDependencies()
+
+	for _, dependency := range dependencies {
+		if dependency == nil {
+			continue
+		}
+		if strings.Contains(dependency.GetName(), "Usecase") {
+			addImport(f, dependency.GetPkgPath(), dependency.GetImportName())
+		} else {
+			addImport(f, dependency.GetPkgPath(), "")
+		}
+	}
+
+	foundFunction := false
+
+	for _, decl := range f.Decls {
+		funcDecl, ok := decl.(*dst.FuncDecl)
+		if !ok {
+			continue
+		}
+
+		if funcDecl.Name.Name != "NewContainer" {
+			continue
+		}
+
+		foundFunction = true
+		var firstNewMethod *int
+
+		for i, stmt := range funcDecl.Body.List {
+			assignStmt, ok := stmt.(*dst.AssignStmt)
+			if !ok {
+				continue
+			}
+			for _, expr := range assignStmt.Rhs {
+				callExpr, ok := expr.(*dst.CallExpr)
+				if !ok {
+					continue
+				}
+
+				selectorExpr, ok := callExpr.Fun.(*dst.SelectorExpr)
+				if !ok {
+					continue
+				}
+
+				identX, ok := selectorExpr.X.(*dst.Ident)
+				if !ok {
+					continue
+				}
+
+				if identX.Name != target.GetImportName() {
+					continue
+				}
+
+				if selectorExpr.Sel.Name != target.GetNewFunction() {
+					continue
+				}
+
+				if firstNewMethod == nil {
+					firstNewMethod = &i
+				}
+
+				for i, dependency := range dependencies {
+					if dependency == nil {
+						if len(callExpr.Args) <= i {
+							callExpr.Args = append(callExpr.Args,
+								&dst.Ident{
+									Name: "nil",
+									Decs: dst.IdentDecorations{
+										NodeDecs: dst.NodeDecs{
+											Before: dst.NewLine,
+											After:  dst.NewLine,
+										},
+									},
+								},
+							)
+						}
+						continue
+					}
+
+					var newIdent dst.Ident
+
+					if _, ok := dependency.(*analyzer.AnalyzedDatabaseDependency); ok {
+						newIdent = dst.Ident{
+							Name: "db",
+							Decs: dst.IdentDecorations{
+								NodeDecs: dst.NodeDecs{
+									Before: dst.NewLine,
+									After:  dst.NewLine,
+								},
+							},
+						}
+					} else {
+						newIdent = dst.Ident{
+							Name: helpers.LowerFirstLetter(dependency.GetName()),
+							Decs: dst.IdentDecorations{
+								NodeDecs: dst.NodeDecs{
+									Before: dst.NewLine,
+									After:  dst.NewLine,
+								},
+							},
+						}
+					}
+
+					if len(callExpr.Args) <= i {
+						callExpr.Args = append(callExpr.Args, &newIdent)
+					} else {
+						ident, ok := callExpr.Args[i].(*dst.Ident)
+						if !ok {
+							continue
+						}
+
+						if ident.Name == "nil" {
+							callExpr.Args[i] = &newIdent
+						}
+					}
+				}
+
+				break
+			}
+		}
+
+		if firstNewMethod == nil {
+			continue
+		}
+
+		for _, dependency := range dependencies {
+			if dependency == nil {
+				continue
+			}
+
+			if _, ok := dependency.(*analyzer.AnalyzedDatabaseDependency); ok {
+				continue
+			}
+
+			skip := false
+
+			for _, stmt := range funcDecl.Body.List {
+				assignStmt, ok := stmt.(*dst.AssignStmt)
+				if !ok {
+					continue
+				}
+
+				for _, expr := range assignStmt.Rhs {
+					callExpr, ok := expr.(*dst.CallExpr)
+					if !ok {
+						continue
+					}
+
+					selectorExpr, ok := callExpr.Fun.(*dst.SelectorExpr)
+					if !ok {
+						continue
+					}
+
+					identX, ok := selectorExpr.X.(*dst.Ident)
+					if !ok {
+						continue
+					}
+
+					if identX.Name != dependency.GetImportName() {
+						continue
+					}
+
+					if selectorExpr.Sel.Name != dependency.GetNewFunction() {
+						continue
+					}
+
+					skip = true
+
+					break
+				}
+			}
+
+			if skip {
+				continue
+			}
+
+			insertPos := *firstNewMethod
+
+			funcDecl.Body.List = append(funcDecl.Body.List[:insertPos], append([]dst.Stmt{
+				&dst.AssignStmt{
+					Lhs: []dst.Expr{
+						dst.NewIdent(helpers.LowerFirstLetter(dependency.GetName())),
+					},
+					Rhs: []dst.Expr{
+						&dst.CallExpr{
+							Fun: &dst.SelectorExpr{
+								X:   dst.NewIdent(dependency.GetImportName()),
+								Sel: dst.NewIdent(dependency.GetNewFunction()),
+							},
+						},
+					},
+					Tok: token.DEFINE,
+				},
+			}, funcDecl.Body.List[insertPos:]...)...)
+
+			*firstNewMethod += 1
+		}
+	}
+
+	if !foundFunction {
+		logger.InjectorLogger.Fatal("Failed to find function `NewContainer` in container.go")
+	}
+
+	err = writeDSTFileToPath(f, path)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	for _, dependency := range dependencies {
+		if dependency == nil {
+			continue
+		}
+
+		InjectContainerDependencies(path, dependency)
 	}
 }

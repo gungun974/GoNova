@@ -15,6 +15,8 @@ func LinkController(repositoryName string, controller analyzer.AnalyzedControlle
 
 	injector.InjectContainerController(containerFilePath, controller)
 
+	injector.InjectContainerDependencies(containerFilePath, &controller)
+
 	err := utils.GoImports(filepath.Join(projectPath, containerFilePath))
 	if err != nil {
 		return err

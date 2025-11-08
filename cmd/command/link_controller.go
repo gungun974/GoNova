@@ -20,7 +20,10 @@ var linkControllerCmd = &cobra.Command{
 }
 
 func LinkController(cmd *cobra.Command, args []string) {
-	controllers := analyzer.AnalyzeProjectControllers()
+	repositories := analyzer.AnalyzeProjectRepositories()
+	presenters := analyzer.AnalyzeProjectPresenters()
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	controllers := analyzer.AnalyzeProjectControllers(usecases)
 
 	choices := []form.Choice[string]{}
 

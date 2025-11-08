@@ -2,11 +2,15 @@ package analyzer
 
 import (
 	"cmp"
+	"go/parser"
+	"go/token"
 	"go/types"
 	"slices"
 	"strings"
 
+	"github.com/dave/dst"
 	"github.com/dave/dst/decorator"
+	"github.com/gungun974/gonova/internal/helpers"
 	"github.com/gungun974/gonova/internal/logger"
 	"golang.org/x/tools/go/packages"
 )
@@ -15,9 +19,31 @@ type AnalyzedUsecase struct {
 	Name     string
 	FilePath string
 	PkgPath  string
+
+	Dependencies []AnalyzedDependency
 }
 
-func AnalyzeProjectUsecases() []AnalyzedUsecase {
+func (a *AnalyzedUsecase) GetDependencies() []AnalyzedDependency {
+	return a.Dependencies
+}
+
+func (a *AnalyzedUsecase) GetName() string {
+	return a.Name
+}
+
+func (a *AnalyzedUsecase) GetNewFunction() string {
+	return "New" + helpers.CapitalizeFirstLetter(a.Name)
+}
+
+func (a *AnalyzedUsecase) GetPkgPath() string {
+	return a.PkgPath
+}
+
+func (a *AnalyzedUsecase) GetImportName() string {
+	return helpers.ToSnakeCase(a.Name)
+}
+
+func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []AnalyzedPresenter) []AnalyzedUsecase {
 	usecases := []AnalyzedUsecase{}
 
 	pkgs, err := decorator.Load(
@@ -62,9 +88,84 @@ func AnalyzeProjectUsecases() []AnalyzedUsecase {
 			}
 
 			usecase := AnalyzedUsecase{
-				Name:     ident.Name,
-				FilePath: pkg.Fset.Position(obj.Pos()).Filename,
-				PkgPath:  pkg.PkgPath,
+				Name:         ident.Name,
+				FilePath:     pkg.Fset.Position(obj.Pos()).Filename,
+				PkgPath:      pkg.PkgPath,
+				Dependencies: []AnalyzedDependency{},
+			}
+
+			f, err := decorator.ParseFile(token.NewFileSet(), usecase.FilePath, nil, parser.ParseComments)
+			if err != nil {
+				logger.InjectorLogger.Fatal(err)
+			}
+
+			for _, decl := range f.Decls {
+				genDecl, ok := decl.(*dst.GenDecl)
+				if !ok {
+					continue
+				}
+				for _, spec := range genDecl.Specs {
+					typeSpec, ok := spec.(*dst.TypeSpec)
+					if !ok {
+						continue
+					}
+
+					if typeSpec.Name == nil {
+						continue
+					}
+
+					if typeSpec.Name.Name != usecase.Name {
+						continue
+					}
+
+					structType, ok := typeSpec.Type.(*dst.StructType)
+					if !ok {
+						continue
+					}
+
+					for _, field := range structType.Fields.List {
+						if len(field.Names) == 0 {
+							usecase.Dependencies = append(usecase.Dependencies, nil)
+							continue
+						}
+
+						selectorExpr, ok := field.Type.(*dst.SelectorExpr)
+						if !ok {
+							usecase.Dependencies = append(usecase.Dependencies, nil)
+							continue
+						}
+
+						identX, ok := selectorExpr.X.(*dst.Ident)
+						if !ok {
+							usecase.Dependencies = append(usecase.Dependencies, nil)
+							continue
+						}
+
+						found := false
+
+						if strings.Contains(identX.Name, "repositories") {
+							for _, repository := range repositories {
+								if repository.Name == selectorExpr.Sel.Name {
+									usecase.Dependencies = append(usecase.Dependencies, &repository)
+									found = true
+									break
+								}
+							}
+						} else if strings.Contains(identX.Name, "presenters") {
+							for _, presenter := range presenters {
+								if presenter.Name == selectorExpr.Sel.Name {
+									usecase.Dependencies = append(usecase.Dependencies, &presenter)
+									found = true
+									break
+								}
+							}
+						}
+
+						if !found {
+							usecase.Dependencies = append(usecase.Dependencies, nil)
+						}
+					}
+				}
 			}
 
 			usecases = append(usecases, usecase)

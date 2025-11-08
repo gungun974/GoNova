@@ -20,7 +20,9 @@ var linkUsecaseCmd = &cobra.Command{
 }
 
 func LinkUsecase(cmd *cobra.Command, args []string) {
-	usecases := analyzer.AnalyzeProjectUsecases()
+	repositories := analyzer.AnalyzeProjectRepositories()
+	presenters := analyzer.AnalyzeProjectPresenters()
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
 
 	usecaseChoices := []form.Choice[string]{}
 
@@ -53,7 +55,7 @@ func LinkUsecase(cmd *cobra.Command, args []string) {
 		logger.MainLogger.Fatalf("Can't find the usecase \"%s\"", usecaseName)
 	}
 
-	controllers := analyzer.AnalyzeProjectControllers()
+	controllers := analyzer.AnalyzeProjectControllers(usecases)
 
 	controllerChoices := []form.Choice[string]{}
 
