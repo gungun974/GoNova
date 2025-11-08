@@ -59,7 +59,13 @@ func LinkUsecase(cmd *cobra.Command, args []string) {
 
 	controllerChoices := []form.Choice[string]{}
 
+controller_loop:
 	for _, controller := range controllers {
+		for _, dependency := range controller.Dependencies {
+			if dependency.GetName() == selectedUsecase.GetName() {
+				continue controller_loop
+			}
+		}
 		controllerChoices = append(controllerChoices, form.Choice[string]{
 			Name:  controller.Name,
 			Value: controller.Name,
@@ -75,7 +81,13 @@ func LinkUsecase(cmd *cobra.Command, args []string) {
 
 	var selectedController *analyzer.AnalyzedController
 
+controller_loop2:
 	for _, controller := range controllers {
+		for _, dependency := range controller.Dependencies {
+			if dependency.GetName() == selectedUsecase.GetName() {
+				continue controller_loop2
+			}
+		}
 		if controllerName != controller.Name {
 			continue
 		}

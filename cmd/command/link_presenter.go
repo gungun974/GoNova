@@ -58,7 +58,13 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 
 	usecaseChoices := []form.Choice[string]{}
 
+usecase_loop:
 	for _, usecase := range usecases {
+		for _, dependency := range usecase.Dependencies {
+			if dependency.GetName() == selectedPresenter.GetName() {
+				continue usecase_loop
+			}
+		}
 		usecaseChoices = append(usecaseChoices, form.Choice[string]{
 			Name:  usecase.Name,
 			Value: usecase.Name,
@@ -74,7 +80,13 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 
 	var selectedUsecase *analyzer.AnalyzedUsecase
 
+usecase_loop2:
 	for _, usecase := range usecases {
+		for _, dependency := range usecase.Dependencies {
+			if dependency.GetName() == selectedPresenter.GetName() {
+				continue usecase_loop2
+			}
+		}
 		if usecaseName != usecase.Name {
 			continue
 		}

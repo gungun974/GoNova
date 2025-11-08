@@ -24,10 +24,17 @@ func LinkController(cmd *cobra.Command, args []string) {
 	presenters := analyzer.AnalyzeProjectPresenters()
 	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
 	controllers := analyzer.AnalyzeProjectControllers(usecases)
+	container := analyzer.AnalyzeProjectContainer(controllers)
 
 	choices := []form.Choice[string]{}
 
+controller_loop:
 	for _, controller := range controllers {
+		for _, dependency := range container.Dependencies {
+			if dependency.GetName() == controller.GetName() {
+				continue controller_loop
+			}
+		}
 		choices = append(choices, form.Choice[string]{
 			Name:  controller.Name,
 			Value: controller.Name,
@@ -43,7 +50,13 @@ func LinkController(cmd *cobra.Command, args []string) {
 
 	var selectedController *analyzer.AnalyzedController
 
+controller_loop2:
 	for _, controller := range controllers {
+		for _, dependency := range container.Dependencies {
+			if dependency.GetName() == controller.GetName() {
+				continue controller_loop2
+			}
+		}
 		if controllerName != controller.Name {
 			continue
 		}
