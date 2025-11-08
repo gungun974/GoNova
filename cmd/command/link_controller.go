@@ -69,7 +69,7 @@ controller_loop2:
 		logger.MainLogger.Fatalf("Can't find the controller \"%s\"", controllerName)
 	}
 
-	err := actions.LinkController(controllerName, *selectedController)
+	err := actions.LinkController(*selectedController)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Link Controller : %v", err)
 	}

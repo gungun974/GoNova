@@ -5,6 +5,7 @@ import (
 
 	"github.com/gungun974/gonova/internal/analyzer"
 	"github.com/gungun974/gonova/internal/injector"
+	"github.com/gungun974/gonova/internal/logger"
 	"github.com/gungun974/gonova/internal/utils"
 )
 
@@ -14,6 +15,8 @@ func LinkPresenter(presenter analyzer.AnalyzedPresenter, usecase analyzer.Analyz
 	containerFilePath := filepath.Join(projectPath, "/internal/container.go")
 
 	usecaseFilePath := usecase.FilePath
+
+	logger.MainLogger.Info("Link Presenter")
 
 	injector.InjectUsecasePresenter(usecaseFilePath, usecase, presenter)
 

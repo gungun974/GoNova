@@ -5,6 +5,7 @@ import (
 
 	"github.com/gungun974/gonova/internal/analyzer"
 	"github.com/gungun974/gonova/internal/injector"
+	"github.com/gungun974/gonova/internal/logger"
 	"github.com/gungun974/gonova/internal/utils"
 )
 
@@ -14,6 +15,8 @@ func LinkUsecase(usecase analyzer.AnalyzedUsecase, controller analyzer.AnalyzedC
 	containerFilePath := filepath.Join(projectPath, "/internal/container.go")
 
 	controllerFilePath := controller.FilePath
+
+	logger.MainLogger.Info("Link Usecase")
 
 	injector.InjectControllerUsecase(controllerFilePath, controller, usecase)
 
