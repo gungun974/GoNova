@@ -12,7 +12,7 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
-func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repository analyzer.AnalyzedRepository) {
+func injectUsecaseDependency(path string, dependencyPath string, dependencyType string, usecase analyzer.AnalyzedUsecase, dependencyName string) {
 	projectName, err := utils.GetGoModName(".")
 	if err != nil {
 		logger.MainLogger.Fatalf("Can't parse go mod : %v", err)
@@ -23,7 +23,7 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 		logger.InjectorLogger.Fatal(err)
 	}
 
-	addImport(f, projectName+"/internal/layers/data/repositories", "")
+	addImport(f, projectName+"/"+dependencyPath+"/"+dependencyType, "")
 
 	foundStruct := false
 	foundFunction := false
@@ -54,7 +54,7 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 				skip := false
 
 				for _, field := range structType.Fields.List {
-					if len(field.Names) != 0 && field.Names[0].Name == helpers.LowerFirstLetter(repository.Name) {
+					if len(field.Names) != 0 && field.Names[0].Name == helpers.LowerFirstLetter(dependencyName) {
 						skip = true
 						break
 					}
@@ -66,11 +66,11 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 
 				structType.Fields.List = append(structType.Fields.List, &dst.Field{
 					Names: []*dst.Ident{
-						dst.NewIdent(helpers.LowerFirstLetter(repository.Name)),
+						dst.NewIdent(helpers.LowerFirstLetter(dependencyName)),
 					},
 					Type: &dst.SelectorExpr{
-						X:   dst.NewIdent("repositories"),
-						Sel: dst.NewIdent(repository.Name),
+						X:   dst.NewIdent(dependencyType),
+						Sel: dst.NewIdent(dependencyName),
 					},
 					Decs: dst.FieldDecorations{
 						NodeDecs: dst.NodeDecs{
@@ -99,7 +99,7 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 
 		for _, field := range funcDecl.Type.Params.List {
 			for _, ident := range field.Names {
-				if ident.Name != helpers.LowerFirstLetter(repository.Name) {
+				if ident.Name != helpers.LowerFirstLetter(dependencyName) {
 					continue
 				}
 
@@ -114,11 +114,11 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 				funcDecl.Type.Params.List,
 				&dst.Field{
 					Names: []*dst.Ident{
-						dst.NewIdent(helpers.LowerFirstLetter(repository.Name)),
+						dst.NewIdent(helpers.LowerFirstLetter(dependencyName)),
 					},
 					Type: &dst.SelectorExpr{
-						X:   dst.NewIdent("repositories"),
-						Sel: dst.NewIdent(repository.Name),
+						X:   dst.NewIdent(dependencyType),
+						Sel: dst.NewIdent(dependencyName),
 					},
 					Decs: dst.FieldDecorations{
 						NodeDecs: dst.NodeDecs{
@@ -181,7 +181,7 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 			returnCompositeLit.Elts = append(
 				returnCompositeLit.Elts,
 				&dst.Ident{
-					Name: helpers.LowerFirstLetter(repository.Name),
+					Name: helpers.LowerFirstLetter(dependencyName),
 					Decs: dst.IdentDecorations{
 						NodeDecs: dst.NodeDecs{
 							Before: dst.NewLine,
@@ -206,4 +206,12 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 	if err != nil {
 		logger.InjectorLogger.Fatal(err)
 	}
+}
+
+func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repository analyzer.AnalyzedRepository) {
+	injectUsecaseDependency(path, "internal/layers/data", "repositories", usecase, repository.Name)
+}
+
+func InjectUsecasePresenter(path string, usecase analyzer.AnalyzedUsecase, presenter analyzer.AnalyzedPresenter) {
+	injectUsecaseDependency(path, "internal/layers/presentation", "presenters", usecase, presenter.Name)
 }
