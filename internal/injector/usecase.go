@@ -12,6 +12,14 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
+var dependenciesTypeOrder = []string{
+	"repositories",
+	"services",
+	"storages",
+	"adapters",
+	"presenters",
+}
+
 func injectUsecaseDependency(path string, dependencyPath string, dependencyType string, usecase analyzer.AnalyzedUsecase, dependencyName string) {
 	projectName, err := utils.GetGoModName(".")
 	if err != nil {
@@ -27,44 +35,119 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 
 	foundStruct := false
 	foundFunction := false
+	argumentPosition := 0
 
 	for _, decl := range f.Decls {
 		genDecl, ok := decl.(*dst.GenDecl)
-		if ok {
-			for _, spec := range genDecl.Specs {
-				typeSpec, ok := spec.(*dst.TypeSpec)
+		if !ok {
+			continue
+		}
+
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*dst.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			if typeSpec.Name == nil {
+				continue
+			}
+
+			if typeSpec.Name.Name != usecase.Name {
+				continue
+			}
+
+			structType, ok := typeSpec.Type.(*dst.StructType)
+			if !ok {
+				continue
+			}
+
+			foundStruct = true
+			skip := false
+
+			var insertAt int
+
+			priorities := make(map[string]int, len(dependenciesTypeOrder))
+			for i, t := range dependenciesTypeOrder {
+				priorities[t] = i
+			}
+
+			newPriority, hasNewPriority := priorities[dependencyType]
+
+			lastSame := -1
+			maxBeforeHigher := -1
+			minAfterLower := len(structType.Fields.List)
+
+			for i, field := range structType.Fields.List {
+				if len(field.Names) != 0 && field.Names[0].Name == helpers.LowerFirstLetter(dependencyName) {
+					skip = true
+					break
+				}
+
+				selectorExpr, ok := field.Type.(*dst.SelectorExpr)
 				if !ok {
 					continue
 				}
 
-				if typeSpec.Name == nil {
-					continue
-				}
-
-				if typeSpec.Name.Name != usecase.Name {
-					continue
-				}
-
-				structType, ok := typeSpec.Type.(*dst.StructType)
+				ident, ok := selectorExpr.X.(*dst.Ident)
 				if !ok {
 					continue
 				}
 
-				foundStruct = true
-				skip := false
+				group := ident.Name
 
-				for _, field := range structType.Fields.List {
-					if len(field.Names) != 0 && field.Names[0].Name == helpers.LowerFirstLetter(dependencyName) {
-						skip = true
-						break
-					}
-				}
-
-				if skip {
+				if group == dependencyType {
+					lastSame = i
 					continue
 				}
 
-				structType.Fields.List = append(structType.Fields.List, &dst.Field{
+				if !hasNewPriority {
+					continue
+				}
+
+				p, ok := priorities[group]
+				if !ok {
+					continue
+				}
+
+				if p < newPriority && i > maxBeforeHigher {
+					maxBeforeHigher = i
+				}
+
+				if p > newPriority && i < minAfterLower {
+					minAfterLower = i
+				}
+			}
+
+			if skip {
+				continue
+			}
+
+			n := len(structType.Fields.List)
+			if minAfterLower < 0 || minAfterLower > n {
+				minAfterLower = n
+			}
+
+			if hasNewPriority {
+				if lastSame != -1 {
+					insertAt = max(lastSame+1, maxBeforeHigher)
+				} else {
+					insertAt = max(maxBeforeHigher+1, 0)
+				}
+
+				if insertAt > minAfterLower {
+					insertAt = minAfterLower
+				}
+			} else {
+				if lastSame != -1 {
+					insertAt = lastSame + 1
+				} else {
+					insertAt = n
+				}
+			}
+
+			structType.Fields.List = append(structType.Fields.List[:insertAt], append([]*dst.Field{
+				{
 					Names: []*dst.Ident{
 						dst.NewIdent(helpers.LowerFirstLetter(dependencyName)),
 					},
@@ -77,13 +160,18 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 							After: dst.NewLine,
 						},
 					},
-				})
+				},
+			}, structType.Fields.List[insertAt:]...)...)
 
-			}
-
-			continue
+			argumentPosition = insertAt
 		}
+	}
 
+	if !foundStruct {
+		logger.InjectorLogger.Fatalf("Failed to find struct `%s` in %s", usecase.Name, path)
+	}
+
+	for _, decl := range f.Decls {
 		funcDecl, ok := decl.(*dst.FuncDecl)
 		if !ok {
 			continue
@@ -110,9 +198,8 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 		}
 
 		if !skip {
-			funcDecl.Type.Params.List = append(
-				funcDecl.Type.Params.List,
-				&dst.Field{
+			funcDecl.Type.Params.List = append(funcDecl.Type.Params.List[:argumentPosition], append([]*dst.Field{
+				{
 					Names: []*dst.Ident{
 						dst.NewIdent(helpers.LowerFirstLetter(dependencyName)),
 					},
@@ -127,7 +214,7 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 						},
 					},
 				},
-			)
+			}, funcDecl.Type.Params.List[argumentPosition:]...)...)
 		}
 
 		var returnCompositeLit *dst.CompositeLit
@@ -178,8 +265,7 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 		}
 
 		if !skip {
-			returnCompositeLit.Elts = append(
-				returnCompositeLit.Elts,
+			returnCompositeLit.Elts = append(returnCompositeLit.Elts[:argumentPosition], append([]dst.Expr{
 				&dst.Ident{
 					Name: helpers.LowerFirstLetter(dependencyName),
 					Decs: dst.IdentDecorations{
@@ -189,13 +275,9 @@ func injectUsecaseDependency(path string, dependencyPath string, dependencyType 
 						},
 					},
 				},
-			)
+			}, returnCompositeLit.Elts[argumentPosition:]...)...)
 		}
 
-	}
-
-	if !foundStruct {
-		logger.InjectorLogger.Fatalf("Failed to find struct `%s` in %s", usecase.Name, path)
 	}
 
 	if !foundFunction {
