@@ -31,17 +31,17 @@ func LinkController(cmd *cobra.Command, args []string) {
 		})
 	}
 
-	var controllerlName string
+	var controllerName string
 	if len(args) == 0 {
-		controllerlName = form.AskChoiceSearch("Controller to link :", choices)
+		controllerName = form.AskChoiceSearch("Controller to link :", choices)
 	} else {
-		controllerlName = args[0]
+		controllerName = args[0]
 	}
 
 	var selectedController *analyzer.AnalyzedController
 
 	for _, controller := range controllers {
-		if controllerlName != controller.Name {
+		if controllerName != controller.Name {
 			continue
 		}
 
@@ -50,11 +50,11 @@ func LinkController(cmd *cobra.Command, args []string) {
 	}
 
 	if selectedController == nil {
-		logger.MainLogger.Fatalf("Can't find the controller \"%s\"", controllerlName)
+		logger.MainLogger.Fatalf("Can't find the controller \"%s\"", controllerName)
 	}
 
-	err := actions.LinkController(controllerlName, *selectedController)
+	err := actions.LinkController(controllerName, *selectedController)
 	if err != nil {
-		logger.MainLogger.Fatalf("Failed to Make Repository : %v", err)
+		logger.MainLogger.Fatalf("Failed to Link Controller : %v", err)
 	}
 }
