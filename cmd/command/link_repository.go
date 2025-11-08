@@ -32,10 +32,10 @@ func LinkRepository(cmd *cobra.Command, args []string) {
 	}
 
 	var repositoryName string
-	if len(args) <= 1 {
+	if len(args) == 0 {
 		repositoryName = form.AskChoiceSearch("Repository to link :", repositoryChoices)
 	} else {
-		repositoryName = args[1]
+		repositoryName = args[0]
 	}
 
 	var selectedRepository *analyzer.AnalyzedRepository
@@ -66,10 +66,10 @@ func LinkRepository(cmd *cobra.Command, args []string) {
 	}
 
 	var usecaseName string
-	if len(args) == 0 {
+	if len(args) <= 1 {
 		usecaseName = form.AskChoiceSearch("Usecase to link :", usecaseChoices)
 	} else {
-		usecaseName = args[0]
+		usecaseName = args[1]
 	}
 
 	var selectedUsecase *analyzer.AnalyzedUsecase

@@ -11,7 +11,7 @@ import (
 	make_presenter_template "github.com/gungun974/gonova/resources/make/presenter"
 )
 
-func MakePresenter(presenterName string) error {
+func MakePresenter(presenterName string) (string, error) {
 	projectPath := "."
 
 	projectName, err := utils.GetGoModName(projectPath)
@@ -46,13 +46,13 @@ func MakePresenter(presenterName string) error {
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = utils.GoFumpt(projectPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return projectGlobalTemplateConfig.PresenterName, nil
 }

@@ -32,10 +32,10 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 	}
 
 	var presenterName string
-	if len(args) <= 1 {
+	if len(args) == 0 {
 		presenterName = form.AskChoiceSearch("Presenter to link :", presenterChoices)
 	} else {
-		presenterName = args[1]
+		presenterName = args[0]
 	}
 
 	var selectedPresenter *analyzer.AnalyzedPresenter
@@ -66,10 +66,10 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 	}
 
 	var usecaseName string
-	if len(args) == 0 {
+	if len(args) <= 1 {
 		usecaseName = form.AskChoiceSearch("Usecase to link :", usecaseChoices)
 	} else {
-		usecaseName = args[0]
+		usecaseName = args[1]
 	}
 
 	var selectedUsecase *analyzer.AnalyzedUsecase

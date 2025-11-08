@@ -26,8 +26,14 @@ func MakePresenter(cmd *cobra.Command, args []string) {
 		presenterName = args[0]
 	}
 
-	err := actions.MakePresenter(presenterName)
+	newPresenter, err := actions.MakePresenter(presenterName)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Make Presenter : %v", err)
+	}
+
+	if form.AskOption("Do you want to link with a usecase :", true, "Link", "No") {
+		LinkPresenter(cmd, []string{
+			newPresenter,
+		})
 	}
 }

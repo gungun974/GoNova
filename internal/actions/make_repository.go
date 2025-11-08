@@ -13,7 +13,7 @@ import (
 	make_repository_template "github.com/gungun974/gonova/resources/make/repository"
 )
 
-func MakeRepository(repositoryName string, model *analyzer.AnalyzedModel) error {
+func MakeRepository(repositoryName string, model *analyzer.AnalyzedModel) (string, error) {
 	projectPath := "."
 
 	projectName, err := utils.GetGoModName(projectPath)
@@ -43,7 +43,7 @@ func MakeRepository(repositoryName string, model *analyzer.AnalyzedModel) error 
 			projectGlobalTemplateConfig,
 		)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
@@ -57,13 +57,13 @@ func MakeRepository(repositoryName string, model *analyzer.AnalyzedModel) error 
 
 	err = utils.GoImports(filepath.Join(projectPath, newRepositoryFilePath))
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = utils.GoFumpt(filepath.Join(projectPath, newRepositoryFilePath))
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return helpers.CapitalizeFirstLetter(repositoryName) + "Repository", nil
 }

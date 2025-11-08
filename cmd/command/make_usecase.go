@@ -26,8 +26,14 @@ func MakeUsecase(cmd *cobra.Command, args []string) {
 		usecaseName = args[0]
 	}
 
-	err := actions.MakeUsecase(usecaseName)
+	newUsecase, err := actions.MakeUsecase(usecaseName)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Make Usecase : %v", err)
+	}
+
+	if form.AskOption("Do you want to link with a controller :", true, "Link", "No") {
+		LinkUsecase(cmd, []string{
+			newUsecase,
+		})
 	}
 }

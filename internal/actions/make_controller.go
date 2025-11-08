@@ -11,7 +11,7 @@ import (
 	make_controller_template "github.com/gungun974/gonova/resources/make/controller"
 )
 
-func MakeController(controllerName string) error {
+func MakeController(controllerName string) (string, error) {
 	projectPath := "."
 
 	projectName, err := utils.GetGoModName(projectPath)
@@ -46,13 +46,13 @@ func MakeController(controllerName string) error {
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = utils.GoFumpt(projectPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return projectGlobalTemplateConfig.ControllerName, nil
 }

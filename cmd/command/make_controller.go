@@ -26,8 +26,14 @@ func MakeController(cmd *cobra.Command, args []string) {
 		controllerName = args[0]
 	}
 
-	err := actions.MakeController(controllerName)
+	newController, err := actions.MakeController(controllerName)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Make Controller : %v", err)
+	}
+
+	if form.AskOption("Do you want to link with the container :", true, "Link", "No") {
+		LinkController(cmd, []string{
+			newController,
+		})
 	}
 }

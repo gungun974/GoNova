@@ -121,8 +121,14 @@ model_loop:
 		repositoryName = &args[0]
 	}
 
-	err := actions.MakeRepository(*repositoryName, selectedModel)
+	newRepository, err := actions.MakeRepository(*repositoryName, selectedModel)
 	if err != nil {
 		logger.MainLogger.Fatalf("Failed to Make Repository : %v", err)
+	}
+
+	if form.AskOption("Do you want to link with a usecase :", true, "Link", "No") {
+		LinkRepository(cmd, []string{
+			newRepository,
+		})
 	}
 }

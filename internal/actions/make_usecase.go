@@ -12,7 +12,7 @@ import (
 	make_usecase_template "github.com/gungun974/gonova/resources/make/usecase"
 )
 
-func MakeUsecase(usecaseName string) error {
+func MakeUsecase(usecaseName string) (string, error) {
 	projectPath := "."
 
 	projectName, err := utils.GetGoModName(projectPath)
@@ -56,7 +56,7 @@ func MakeUsecase(usecaseName string) error {
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = utils.CreateFileFromTemplate(
@@ -65,13 +65,13 @@ func MakeUsecase(usecaseName string) error {
 		projectGlobalTemplateConfig,
 	)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	err = utils.GoFumpt(projectPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	return projectGlobalTemplateConfig.UsecaseName, nil
 }
