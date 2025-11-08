@@ -10,5 +10,8 @@ type RedirectAPIResponse struct {
 }
 
 func (p RedirectAPIResponse) WriteResponse(w http.ResponseWriter, r *http.Request) {
+	if p.Status == 0 {
+		p.Status = http.StatusSeeOther
+	}
 	http.Redirect(w, r, p.Url, p.Status)
 }
