@@ -13,7 +13,7 @@ func init() {
 }
 
 var linkUsecaseCmd = &cobra.Command{
-	Use:   "link:usecase (UsecaseName)",
+	Use:   "link:usecase (UsecaseName) (ControllerName)",
 	Short: "Link a usecase with an existing controller",
 	Args:  cobra.MinimumNArgs(0),
 	Run:   LinkUsecase,
