@@ -98,80 +98,6 @@ func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []Anal
 				Dependencies: []AnalyzedDependency{},
 			}
 
-			f, err := decorator.ParseFile(token.NewFileSet(), usecase.FilePath, nil, parser.ParseComments)
-			if err != nil {
-				logger.InjectorLogger.Fatal(err)
-			}
-
-			for _, decl := range f.Decls {
-				genDecl, ok := decl.(*dst.GenDecl)
-				if !ok {
-					continue
-				}
-				for _, spec := range genDecl.Specs {
-					typeSpec, ok := spec.(*dst.TypeSpec)
-					if !ok {
-						continue
-					}
-
-					if typeSpec.Name == nil {
-						continue
-					}
-
-					if typeSpec.Name.Name != usecase.Name {
-						continue
-					}
-
-					structType, ok := typeSpec.Type.(*dst.StructType)
-					if !ok {
-						continue
-					}
-
-					for _, field := range structType.Fields.List {
-						if len(field.Names) == 0 {
-							usecase.Dependencies = append(usecase.Dependencies, nil)
-							continue
-						}
-
-						selectorExpr, ok := field.Type.(*dst.SelectorExpr)
-						if !ok {
-							usecase.Dependencies = append(usecase.Dependencies, nil)
-							continue
-						}
-
-						identX, ok := selectorExpr.X.(*dst.Ident)
-						if !ok {
-							usecase.Dependencies = append(usecase.Dependencies, nil)
-							continue
-						}
-
-						found := false
-
-						if strings.Contains(identX.Name, "repositories") {
-							for _, repository := range repositories {
-								if repository.Name == selectorExpr.Sel.Name {
-									usecase.Dependencies = append(usecase.Dependencies, &repository)
-									found = true
-									break
-								}
-							}
-						} else if strings.Contains(identX.Name, "presenters") {
-							for _, presenter := range presenters {
-								if presenter.Name == selectorExpr.Sel.Name {
-									usecase.Dependencies = append(usecase.Dependencies, &presenter)
-									found = true
-									break
-								}
-							}
-						}
-
-						if !found {
-							usecase.Dependencies = append(usecase.Dependencies, nil)
-						}
-					}
-				}
-			}
-
 			usecases = append(usecases, usecase)
 		}
 	}
@@ -180,5 +106,87 @@ func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []Anal
 		return cmp.Compare(a.Name, b.Name)
 	})
 
+	for i := range usecases {
+		DeepAnalyzeProjectUsecase(&usecases[i], repositories, presenters)
+	}
+
 	return usecases
+}
+
+func DeepAnalyzeProjectUsecase(usecase *AnalyzedUsecase, repositories []AnalyzedRepository, presenters []AnalyzedPresenter) {
+	f, err := decorator.ParseFile(token.NewFileSet(), usecase.FilePath, nil, parser.ParseComments)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	usecase.Dependencies = []AnalyzedDependency{}
+
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*dst.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*dst.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			if typeSpec.Name == nil {
+				continue
+			}
+
+			if typeSpec.Name.Name != usecase.Name {
+				continue
+			}
+
+			structType, ok := typeSpec.Type.(*dst.StructType)
+			if !ok {
+				continue
+			}
+
+			for _, field := range structType.Fields.List {
+				if len(field.Names) == 0 {
+					usecase.Dependencies = append(usecase.Dependencies, nil)
+					continue
+				}
+
+				selectorExpr, ok := field.Type.(*dst.SelectorExpr)
+				if !ok {
+					usecase.Dependencies = append(usecase.Dependencies, nil)
+					continue
+				}
+
+				identX, ok := selectorExpr.X.(*dst.Ident)
+				if !ok {
+					usecase.Dependencies = append(usecase.Dependencies, nil)
+					continue
+				}
+
+				found := false
+
+				if strings.Contains(identX.Name, "repositories") {
+					for _, repository := range repositories {
+						if repository.Name == selectorExpr.Sel.Name {
+							usecase.Dependencies = append(usecase.Dependencies, &repository)
+							found = true
+							break
+						}
+					}
+				} else if strings.Contains(identX.Name, "presenters") {
+					for _, presenter := range presenters {
+						if presenter.Name == selectorExpr.Sel.Name {
+							usecase.Dependencies = append(usecase.Dependencies, &presenter)
+							found = true
+							break
+						}
+					}
+				}
+
+				if !found {
+					usecase.Dependencies = append(usecase.Dependencies, nil)
+				}
+			}
+		}
+	}
 }

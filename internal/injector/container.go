@@ -13,6 +13,16 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
+var dependenciesType = []string{
+	"repository",
+	"service",
+	"storage",
+	"adapter",
+	"presenter",
+	"usecase",
+	"controller",
+}
+
 var dependenciesTypeOrder = []string{
 	"repositories",
 	"services",
@@ -366,6 +376,20 @@ func InjectContainerDependencies(path string, target analyzer.AnalyzedDependency
 
 						if ident.Name == "nil" {
 							callExpr.Args[i] = &newIdent
+							continue
+						}
+
+						if ident.Name == newIdent.Name {
+							continue
+						}
+
+						for _, dependencyType := range dependenciesType {
+							if strings.Contains(strings.ToLower(ident.Name), dependencyType) {
+								callExpr.Args = append(callExpr.Args[:i], append([]dst.Expr{
+									&newIdent,
+								}, callExpr.Args[i:]...)...)
+								break
+							}
 						}
 					}
 				}

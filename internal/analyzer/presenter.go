@@ -91,41 +91,6 @@ func AnalyzeProjectPresenters() []AnalyzedPresenter {
 				Dependencies: []AnalyzedDependency{},
 			}
 
-			f, err := decorator.ParseFile(token.NewFileSet(), presenter.FilePath, nil, parser.ParseComments)
-			if err != nil {
-				logger.InjectorLogger.Fatal(err)
-			}
-
-			for _, decl := range f.Decls {
-				genDecl, ok := decl.(*dst.GenDecl)
-				if !ok {
-					continue
-				}
-				for _, spec := range genDecl.Specs {
-					typeSpec, ok := spec.(*dst.TypeSpec)
-					if !ok {
-						continue
-					}
-
-					if typeSpec.Name == nil {
-						continue
-					}
-
-					if typeSpec.Name.Name != presenter.Name {
-						continue
-					}
-
-					structType, ok := typeSpec.Type.(*dst.StructType)
-					if !ok {
-						continue
-					}
-
-					for range structType.Fields.List {
-						presenter.Dependencies = append(presenter.Dependencies, nil)
-					}
-				}
-			}
-
 			presenters = append(presenters, presenter)
 		}
 	}
@@ -134,5 +99,48 @@ func AnalyzeProjectPresenters() []AnalyzedPresenter {
 		return cmp.Compare(a.Name, b.Name)
 	})
 
+	for i := range presenters {
+		DeepAnalyzeProjectPresenter(&presenters[i])
+	}
+
 	return presenters
+}
+
+func DeepAnalyzeProjectPresenter(presenter *AnalyzedPresenter) {
+	f, err := decorator.ParseFile(token.NewFileSet(), presenter.FilePath, nil, parser.ParseComments)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	presenter.Dependencies = []AnalyzedDependency{}
+
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*dst.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*dst.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			if typeSpec.Name == nil {
+				continue
+			}
+
+			if typeSpec.Name.Name != presenter.Name {
+				continue
+			}
+
+			structType, ok := typeSpec.Type.(*dst.StructType)
+			if !ok {
+				continue
+			}
+
+			for range structType.Fields.List {
+				presenter.Dependencies = append(presenter.Dependencies, nil)
+			}
+		}
+	}
 }

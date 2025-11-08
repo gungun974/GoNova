@@ -91,69 +91,6 @@ func AnalyzeProjectRepositories() []AnalyzedRepository {
 				Dependencies: []AnalyzedDependency{},
 			}
 
-			f, err := decorator.ParseFile(token.NewFileSet(), repository.FilePath, nil, parser.ParseComments)
-			if err != nil {
-				logger.InjectorLogger.Fatal(err)
-			}
-
-			for _, decl := range f.Decls {
-				genDecl, ok := decl.(*dst.GenDecl)
-				if !ok {
-					continue
-				}
-				for _, spec := range genDecl.Specs {
-					typeSpec, ok := spec.(*dst.TypeSpec)
-					if !ok {
-						continue
-					}
-
-					if typeSpec.Name == nil {
-						continue
-					}
-
-					if typeSpec.Name.Name != repository.Name {
-						continue
-					}
-
-					structType, ok := typeSpec.Type.(*dst.StructType)
-					if !ok {
-						continue
-					}
-
-					for _, field := range structType.Fields.List {
-						if len(field.Names) == 0 {
-							repository.Dependencies = append(repository.Dependencies, nil)
-							continue
-						}
-
-						expr := field.Type
-
-						starExpr, ok := field.Type.(*dst.StarExpr)
-						if ok {
-							expr = starExpr.X
-						}
-
-						selectorExpr, ok := expr.(*dst.SelectorExpr)
-						if !ok {
-							repository.Dependencies = append(repository.Dependencies, nil)
-							continue
-						}
-
-						identX, ok := selectorExpr.X.(*dst.Ident)
-						if !ok {
-							repository.Dependencies = append(repository.Dependencies, nil)
-							continue
-						}
-
-						if identX.Name == "sqlx" && selectorExpr.Sel.Name == "DB" {
-							repository.Dependencies = append(repository.Dependencies, &AnalyzedDatabaseDependency{})
-						} else {
-							repository.Dependencies = append(repository.Dependencies, nil)
-						}
-					}
-				}
-			}
-
 			repositories = append(repositories, repository)
 		}
 	}
@@ -162,5 +99,76 @@ func AnalyzeProjectRepositories() []AnalyzedRepository {
 		return cmp.Compare(a.Name, b.Name)
 	})
 
+	for i := range repositories {
+		DeepAnalyzeProjectRepository(&repositories[i])
+	}
+
 	return repositories
+}
+
+func DeepAnalyzeProjectRepository(repository *AnalyzedRepository) {
+	f, err := decorator.ParseFile(token.NewFileSet(), repository.FilePath, nil, parser.ParseComments)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	repository.Dependencies = []AnalyzedDependency{}
+
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*dst.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*dst.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			if typeSpec.Name == nil {
+				continue
+			}
+
+			if typeSpec.Name.Name != repository.Name {
+				continue
+			}
+
+			structType, ok := typeSpec.Type.(*dst.StructType)
+			if !ok {
+				continue
+			}
+
+			for _, field := range structType.Fields.List {
+				if len(field.Names) == 0 {
+					repository.Dependencies = append(repository.Dependencies, nil)
+					continue
+				}
+
+				expr := field.Type
+
+				starExpr, ok := field.Type.(*dst.StarExpr)
+				if ok {
+					expr = starExpr.X
+				}
+
+				selectorExpr, ok := expr.(*dst.SelectorExpr)
+				if !ok {
+					repository.Dependencies = append(repository.Dependencies, nil)
+					continue
+				}
+
+				identX, ok := selectorExpr.X.(*dst.Ident)
+				if !ok {
+					repository.Dependencies = append(repository.Dependencies, nil)
+					continue
+				}
+
+				if identX.Name == "sqlx" && selectorExpr.Sel.Name == "DB" {
+					repository.Dependencies = append(repository.Dependencies, &AnalyzedDatabaseDependency{})
+				} else {
+					repository.Dependencies = append(repository.Dependencies, nil)
+				}
+			}
+		}
+	}
 }

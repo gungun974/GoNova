@@ -91,80 +91,6 @@ func AnalyzeProjectControllers(usecases []AnalyzedUsecase) []AnalyzedController 
 				Dependencies: []AnalyzedDependency{},
 			}
 
-			f, err := decorator.ParseFile(token.NewFileSet(), controller.FilePath, nil, parser.ParseComments)
-			if err != nil {
-				logger.InjectorLogger.Fatal(err)
-			}
-
-			for _, decl := range f.Decls {
-				genDecl, ok := decl.(*dst.GenDecl)
-				if !ok {
-					continue
-				}
-				for _, spec := range genDecl.Specs {
-					typeSpec, ok := spec.(*dst.TypeSpec)
-					if !ok {
-						continue
-					}
-
-					if typeSpec.Name == nil {
-						continue
-					}
-
-					if typeSpec.Name.Name != controller.Name {
-						continue
-					}
-
-					structType, ok := typeSpec.Type.(*dst.StructType)
-					if !ok {
-						continue
-					}
-
-					for _, field := range structType.Fields.List {
-						if len(field.Names) == 0 {
-							controller.Dependencies = append(controller.Dependencies, nil)
-							continue
-						}
-
-						selectorExpr, ok := field.Type.(*dst.SelectorExpr)
-						if !ok {
-							controller.Dependencies = append(controller.Dependencies, nil)
-							continue
-						}
-
-						identX, ok := selectorExpr.X.(*dst.Ident)
-						if !ok {
-							controller.Dependencies = append(controller.Dependencies, nil)
-							continue
-						}
-
-						if !strings.Contains(identX.Name, "usecase") {
-							controller.Dependencies = append(controller.Dependencies, nil)
-							continue
-						}
-
-						if !strings.HasSuffix(selectorExpr.Sel.Name, "Usecase") {
-							controller.Dependencies = append(controller.Dependencies, nil)
-							continue
-						}
-
-						found := false
-
-						for _, usecase := range usecases {
-							if usecase.Name == selectorExpr.Sel.Name {
-								controller.Dependencies = append(controller.Dependencies, &usecase)
-								found = true
-								break
-							}
-						}
-
-						if !found {
-							controller.Dependencies = append(controller.Dependencies, nil)
-						}
-					}
-				}
-			}
-
 			controllers = append(controllers, controller)
 		}
 	}
@@ -173,5 +99,87 @@ func AnalyzeProjectControllers(usecases []AnalyzedUsecase) []AnalyzedController 
 		return cmp.Compare(a.Name, b.Name)
 	})
 
+	for i := range controllers {
+		DeepAnalyzeProjectController(&controllers[i], usecases)
+	}
+
 	return controllers
+}
+
+func DeepAnalyzeProjectController(controller *AnalyzedController, usecases []AnalyzedUsecase) {
+	f, err := decorator.ParseFile(token.NewFileSet(), controller.FilePath, nil, parser.ParseComments)
+	if err != nil {
+		logger.InjectorLogger.Fatal(err)
+	}
+
+	controller.Dependencies = []AnalyzedDependency{}
+
+	for _, decl := range f.Decls {
+		genDecl, ok := decl.(*dst.GenDecl)
+		if !ok {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			typeSpec, ok := spec.(*dst.TypeSpec)
+			if !ok {
+				continue
+			}
+
+			if typeSpec.Name == nil {
+				continue
+			}
+
+			if typeSpec.Name.Name != controller.Name {
+				continue
+			}
+
+			structType, ok := typeSpec.Type.(*dst.StructType)
+			if !ok {
+				continue
+			}
+
+			for _, field := range structType.Fields.List {
+				if len(field.Names) == 0 {
+					controller.Dependencies = append(controller.Dependencies, nil)
+					continue
+				}
+
+				selectorExpr, ok := field.Type.(*dst.SelectorExpr)
+				if !ok {
+					controller.Dependencies = append(controller.Dependencies, nil)
+					continue
+				}
+
+				identX, ok := selectorExpr.X.(*dst.Ident)
+				if !ok {
+					controller.Dependencies = append(controller.Dependencies, nil)
+					continue
+				}
+
+				if !strings.Contains(identX.Name, "usecase") {
+					controller.Dependencies = append(controller.Dependencies, nil)
+					continue
+				}
+
+				if !strings.HasSuffix(selectorExpr.Sel.Name, "Usecase") {
+					controller.Dependencies = append(controller.Dependencies, nil)
+					continue
+				}
+
+				found := false
+
+				for _, usecase := range usecases {
+					if usecase.Name == selectorExpr.Sel.Name {
+						controller.Dependencies = append(controller.Dependencies, &usecase)
+						found = true
+						break
+					}
+				}
+
+				if !found {
+					controller.Dependencies = append(controller.Dependencies, nil)
+				}
+			}
+		}
+	}
 }
