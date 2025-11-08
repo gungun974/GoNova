@@ -10,6 +10,8 @@ type AnalyzedDependency interface {
 	GetPkgPath() string
 
 	GetImportName() string
+
+	GetType() string
 }
 
 type AnalyzedDatabaseDependency struct{}
@@ -31,5 +33,9 @@ func (a *AnalyzedDatabaseDependency) GetPkgPath() string {
 }
 
 func (a *AnalyzedDatabaseDependency) GetImportName() string {
+	return ""
+}
+
+func (a *AnalyzedDatabaseDependency) GetType() string {
 	return ""
 }

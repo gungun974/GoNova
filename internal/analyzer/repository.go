@@ -43,6 +43,10 @@ func (a *AnalyzedRepository) GetImportName() string {
 	return "repositories"
 }
 
+func (a *AnalyzedRepository) GetType() string {
+	return "repositories"
+}
+
 func AnalyzeProjectRepositories() []AnalyzedRepository {
 	repositories := []AnalyzedRepository{}
 

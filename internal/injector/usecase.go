@@ -12,14 +12,6 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
-var dependenciesTypeOrder = []string{
-	"repositories",
-	"services",
-	"storages",
-	"adapters",
-	"presenters",
-}
-
 func injectUsecaseDependency(path string, dependencyPath string, dependencyType string, usecase analyzer.AnalyzedUsecase, dependencyName string) {
 	projectName, err := utils.GetGoModName(".")
 	if err != nil {

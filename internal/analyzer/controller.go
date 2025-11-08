@@ -43,6 +43,10 @@ func (a *AnalyzedController) GetImportName() string {
 	return "controllers"
 }
 
+func (a *AnalyzedController) GetType() string {
+	return "controllers"
+}
+
 func AnalyzeProjectControllers(usecases []AnalyzedUsecase) []AnalyzedController {
 	controllers := []AnalyzedController{}
 

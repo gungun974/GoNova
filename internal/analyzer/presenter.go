@@ -43,6 +43,10 @@ func (a *AnalyzedPresenter) GetImportName() string {
 	return "presenters"
 }
 
+func (a *AnalyzedPresenter) GetType() string {
+	return "presenters"
+}
+
 func AnalyzeProjectPresenters() []AnalyzedPresenter {
 	presenters := []AnalyzedPresenter{}
 

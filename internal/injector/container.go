@@ -13,6 +13,16 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
+var dependenciesTypeOrder = []string{
+	"repositories",
+	"services",
+	"storages",
+	"adapters",
+	"presenters",
+	"usecases",
+	"controllers",
+}
+
 func InjectContainerDatabase(path string) {
 	f, err := decorator.ParseFile(token.NewFileSet(), path, nil, parser.ParseComments)
 	if err != nil {
@@ -145,7 +155,7 @@ func InjectContainerController(path string, controller analyzer.AnalyzedControll
 		foundFunction = true
 
 		var containerName string
-		var insertPos int
+		var insertAt int
 
 		for i, stmt := range funcDecl.Body.List {
 			returnStmt, ok := stmt.(*dst.ReturnStmt)
@@ -154,7 +164,7 @@ func InjectContainerController(path string, controller analyzer.AnalyzedControll
 					ident, ok := expr.(*dst.Ident)
 					if ok {
 						containerName = ident.Name
-						insertPos = i
+						insertAt = i
 						break
 					}
 				}
@@ -202,7 +212,7 @@ func InjectContainerController(path string, controller analyzer.AnalyzedControll
 			continue
 		}
 
-		funcDecl.Body.List = append(funcDecl.Body.List[:insertPos], append([]dst.Stmt{
+		funcDecl.Body.List = append(funcDecl.Body.List[:insertAt], append([]dst.Stmt{
 			&dst.AssignStmt{
 				Lhs: []dst.Expr{
 					&dst.SelectorExpr{
@@ -220,7 +230,7 @@ func InjectContainerController(path string, controller analyzer.AnalyzedControll
 				},
 				Tok: token.ASSIGN,
 			},
-		}, funcDecl.Body.List[insertPos:]...)...)
+		}, funcDecl.Body.List[insertAt:]...)...)
 	}
 
 	if !foundStruct {
@@ -419,9 +429,107 @@ func InjectContainerDependencies(path string, target analyzer.AnalyzedDependency
 				continue
 			}
 
-			insertPos := *firstNewMethod
+			var insertAt int
 
-			funcDecl.Body.List = append(funcDecl.Body.List[:insertPos], append([]dst.Stmt{
+			dependencyType := dependency.GetType()
+
+			priorities := make(map[string]int, len(dependenciesTypeOrder))
+			for i, t := range dependenciesTypeOrder {
+				priorities[t] = i
+			}
+
+			newPriority, hasNewPriority := priorities[dependencyType]
+
+			lastSame := -1
+			maxBeforeHigher := -1
+			minAfterLower := *firstNewMethod
+
+			for i, stmt := range funcDecl.Body.List {
+				assignStmt, ok := stmt.(*dst.AssignStmt)
+				if !ok {
+					continue
+				}
+
+				for _, expr := range assignStmt.Rhs {
+					callExpr, ok := expr.(*dst.CallExpr)
+					if !ok {
+						continue
+					}
+
+					selectorExpr, ok := callExpr.Fun.(*dst.SelectorExpr)
+					if !ok {
+						continue
+					}
+
+					ident, ok := selectorExpr.X.(*dst.Ident)
+					if !ok {
+						continue
+					}
+
+					group := ident.Name
+
+					if strings.Contains(group, "usecase") {
+						group = "usecases"
+					}
+
+					if group == dependencyType {
+						lastSame = i
+						continue
+					}
+
+					if !hasNewPriority {
+						continue
+					}
+
+					p, ok := priorities[group]
+					if !ok {
+						continue
+					}
+
+					if p < newPriority && i > maxBeforeHigher {
+						maxBeforeHigher = i
+					}
+
+					if p > newPriority && i < minAfterLower {
+						minAfterLower = i
+					}
+
+					break
+				}
+			}
+
+			if skip {
+				continue
+			}
+
+			n := *firstNewMethod
+			if minAfterLower < 0 || minAfterLower > n {
+				minAfterLower = n
+			}
+
+			if hasNewPriority {
+				if lastSame != -1 {
+					insertAt = max(lastSame+1, maxBeforeHigher)
+				} else {
+					insertAt = max(maxBeforeHigher+1, 0)
+				}
+
+				if insertAt > minAfterLower {
+					insertAt = minAfterLower
+				}
+			} else {
+				if lastSame != -1 {
+					insertAt = lastSame + 1
+				} else {
+					insertAt = n
+				}
+			}
+
+			if insertAt <= 0 {
+				insertAt = 1
+			}
+
+			funcDecl.Body.List = append(funcDecl.Body.List[:insertAt], append([]dst.Stmt{
 				&dst.AssignStmt{
 					Lhs: []dst.Expr{
 						dst.NewIdent(helpers.LowerFirstLetter(dependency.GetName())),
@@ -436,7 +544,7 @@ func InjectContainerDependencies(path string, target analyzer.AnalyzedDependency
 					},
 					Tok: token.DEFINE,
 				},
-			}, funcDecl.Body.List[insertPos:]...)...)
+			}, funcDecl.Body.List[insertAt:]...)...)
 
 			*firstNewMethod += 1
 		}

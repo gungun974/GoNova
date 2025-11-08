@@ -43,6 +43,10 @@ func (a *AnalyzedUsecase) GetImportName() string {
 	return helpers.ToSnakeCase(a.Name)
 }
 
+func (a *AnalyzedUsecase) GetType() string {
+	return "usecases"
+}
+
 func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []AnalyzedPresenter) []AnalyzedUsecase {
 	usecases := []AnalyzedUsecase{}
 
