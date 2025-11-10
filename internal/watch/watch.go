@@ -65,6 +65,10 @@ func WatchNewFiles(config WatcherConfig, updateFile func()) {
 			if ev.Has(fsnotify.Create) || ev.Has(fsnotify.Write) {
 				info, err := os.Stat(ev.Name)
 				if err != nil {
+					if os.IsNotExist(err) {
+						_ = watcher.Remove(ev.Name)
+						continue
+					}
 					logger.WatcherLogger.Fatal(err)
 				}
 
