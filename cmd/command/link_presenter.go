@@ -61,6 +61,9 @@ func LinkPresenter(cmd *cobra.Command, args []string) {
 usecase_loop:
 	for _, usecase := range usecases {
 		for _, dependency := range usecase.Dependencies {
+			if dependency == nil {
+				continue
+			}
 			if dependency.GetName() == selectedPresenter.GetName() {
 				continue usecase_loop
 			}
@@ -83,6 +86,9 @@ usecase_loop:
 usecase_loop2:
 	for _, usecase := range usecases {
 		for _, dependency := range usecase.Dependencies {
+			if dependency == nil {
+				continue
+			}
 			if dependency.GetName() == selectedPresenter.GetName() {
 				continue usecase_loop2
 			}
