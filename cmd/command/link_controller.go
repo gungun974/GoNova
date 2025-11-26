@@ -21,8 +21,9 @@ var linkControllerCmd = &cobra.Command{
 
 func LinkController(cmd *cobra.Command, args []string) {
 	repositories := analyzer.AnalyzeProjectRepositories()
+	storages := analyzer.AnalyzeProjectStorages()
 	presenters := analyzer.AnalyzeProjectPresenters()
-	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 	controllers := analyzer.AnalyzeProjectControllers(usecases)
 	container := analyzer.AnalyzeProjectContainer(controllers)
 

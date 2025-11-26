@@ -21,8 +21,9 @@ var linkUsecaseCmd = &cobra.Command{
 
 func LinkUsecase(cmd *cobra.Command, args []string) {
 	repositories := analyzer.AnalyzeProjectRepositories()
+	storages := analyzer.AnalyzeProjectStorages()
 	presenters := analyzer.AnalyzeProjectPresenters()
-	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 
 	usecaseChoices := []form.Choice[string]{}
 

@@ -47,7 +47,7 @@ func (a *AnalyzedUsecase) GetType() string {
 	return "usecases"
 }
 
-func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []AnalyzedPresenter) []AnalyzedUsecase {
+func AnalyzeProjectUsecases(repositories []AnalyzedRepository, storages []AnalyzedStorage, presenters []AnalyzedPresenter) []AnalyzedUsecase {
 	usecases := []AnalyzedUsecase{}
 
 	pkgs, err := decorator.Load(
@@ -107,13 +107,13 @@ func AnalyzeProjectUsecases(repositories []AnalyzedRepository, presenters []Anal
 	})
 
 	for i := range usecases {
-		DeepAnalyzeProjectUsecase(&usecases[i], repositories, presenters)
+		DeepAnalyzeProjectUsecase(&usecases[i], repositories, storages, presenters)
 	}
 
 	return usecases
 }
 
-func DeepAnalyzeProjectUsecase(usecase *AnalyzedUsecase, repositories []AnalyzedRepository, presenters []AnalyzedPresenter) {
+func DeepAnalyzeProjectUsecase(usecase *AnalyzedUsecase, repositories []AnalyzedRepository, storages []AnalyzedStorage, presenters []AnalyzedPresenter) {
 	f, err := decorator.ParseFile(token.NewFileSet(), usecase.FilePath, nil, parser.ParseComments)
 	if err != nil {
 		logger.InjectorLogger.Fatal(err)
@@ -169,6 +169,14 @@ func DeepAnalyzeProjectUsecase(usecase *AnalyzedUsecase, repositories []Analyzed
 					for _, repository := range repositories {
 						if repository.Name == selectorExpr.Sel.Name {
 							usecase.Dependencies = append(usecase.Dependencies, &repository)
+							found = true
+							break
+						}
+					}
+				} else if strings.Contains(identX.Name, "storages") {
+					for _, storage := range storages {
+						if storage.Name == selectorExpr.Sel.Name {
+							usecase.Dependencies = append(usecase.Dependencies, &storage)
 							found = true
 							break
 						}

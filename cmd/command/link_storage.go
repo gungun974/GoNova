@@ -9,52 +9,52 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(linkPresenterCmd)
+	rootCmd.AddCommand(linkStorageCmd)
 }
 
-var linkPresenterCmd = &cobra.Command{
-	Use:   "link:presenter (PresenterName) (UsecaseName)",
-	Short: "Link a presenter with an existing usecase",
+var linkStorageCmd = &cobra.Command{
+	Use:   "link:storage (StorageName) (UsecaseName)",
+	Short: "Link a storage with an existing usecase",
 	Args:  cobra.MinimumNArgs(0),
-	Run:   LinkPresenter,
+	Run:   LinkStorage,
 }
 
-func LinkPresenter(cmd *cobra.Command, args []string) {
-	presenters := analyzer.AnalyzeProjectPresenters()
+func LinkStorage(cmd *cobra.Command, args []string) {
+	storages := analyzer.AnalyzeProjectStorages()
 
-	presenterChoices := []form.Choice[string]{}
+	storageChoices := []form.Choice[string]{}
 
-	for _, presenter := range presenters {
-		presenterChoices = append(presenterChoices, form.Choice[string]{
-			Name:  presenter.Name,
-			Value: presenter.Name,
+	for _, storage := range storages {
+		storageChoices = append(storageChoices, form.Choice[string]{
+			Name:  storage.Name,
+			Value: storage.Name,
 		})
 	}
 
-	var presenterName string
+	var storageName string
 	if len(args) == 0 {
-		presenterName = form.AskChoiceSearch("Presenter to link :", presenterChoices)
+		storageName = form.AskChoiceSearch("Storage to link :", storageChoices)
 	} else {
-		presenterName = args[0]
+		storageName = args[0]
 	}
 
-	var selectedPresenter *analyzer.AnalyzedPresenter
+	var selectedStorage *analyzer.AnalyzedStorage
 
-	for _, presenter := range presenters {
-		if presenterName != presenter.Name {
+	for _, storage := range storages {
+		if storageName != storage.Name {
 			continue
 		}
 
-		selectedPresenter = &presenter
+		selectedStorage = &storage
 		break
 	}
 
-	if selectedPresenter == nil {
-		logger.MainLogger.Fatalf("Can't find the presenter \"%s\"", presenterName)
+	if selectedStorage == nil {
+		logger.MainLogger.Fatalf("Can't find the storage \"%s\"", storageName)
 	}
 
 	repositories := analyzer.AnalyzeProjectRepositories()
-	storages := analyzer.AnalyzeProjectStorages()
+	presenters := analyzer.AnalyzeProjectPresenters()
 	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 
 	usecaseChoices := []form.Choice[string]{}
@@ -65,7 +65,7 @@ usecase_loop:
 			if dependency == nil {
 				continue
 			}
-			if dependency.GetName() == selectedPresenter.GetName() {
+			if dependency.GetName() == selectedStorage.GetName() {
 				continue usecase_loop
 			}
 		}
@@ -90,7 +90,7 @@ usecase_loop2:
 			if dependency == nil {
 				continue
 			}
-			if dependency.GetName() == selectedPresenter.GetName() {
+			if dependency.GetName() == selectedStorage.GetName() {
 				continue usecase_loop2
 			}
 		}
@@ -106,8 +106,8 @@ usecase_loop2:
 		logger.MainLogger.Fatalf("Can't find the usecase \"%s\"", usecaseName)
 	}
 
-	err := actions.LinkPresenter(*selectedPresenter, *selectedUsecase)
+	err := actions.LinkStorage(*selectedStorage, *selectedUsecase)
 	if err != nil {
-		logger.MainLogger.Fatalf("Failed to Link Presenter : %v", err)
+		logger.MainLogger.Fatalf("Failed to Link Storage : %v", err)
 	}
 }

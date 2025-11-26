@@ -31,8 +31,9 @@ func LinkUsecase(usecase analyzer.AnalyzedUsecase, controller analyzer.AnalyzedC
 	}
 
 	repositories := analyzer.AnalyzeProjectRepositories()
+	storages := analyzer.AnalyzeProjectStorages()
 	presenters := analyzer.AnalyzeProjectPresenters()
-	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 	analyzer.DeepAnalyzeProjectController(&controller, usecases)
 
 	injector.InjectContainerDependencies(containerFilePath, &controller)

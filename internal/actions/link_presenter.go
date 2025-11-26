@@ -31,8 +31,9 @@ func LinkPresenter(presenter analyzer.AnalyzedPresenter, usecase analyzer.Analyz
 	}
 
 	repositories := analyzer.AnalyzeProjectRepositories()
+	storages := analyzer.AnalyzeProjectStorages()
 	presenters := analyzer.AnalyzeProjectPresenters()
-	analyzer.DeepAnalyzeProjectUsecase(&usecase, repositories, presenters)
+	analyzer.DeepAnalyzeProjectUsecase(&usecase, repositories, storages, presenters)
 
 	injector.InjectContainerDependencies(containerFilePath, &usecase)
 

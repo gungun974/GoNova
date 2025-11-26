@@ -53,8 +53,9 @@ func LinkRepository(cmd *cobra.Command, args []string) {
 		logger.MainLogger.Fatalf("Can't find the repository \"%s\"", repositoryName)
 	}
 
+	storages := analyzer.AnalyzeProjectStorages()
 	presenters := analyzer.AnalyzeProjectPresenters()
-	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 
 	usecaseChoices := []form.Choice[string]{}
 

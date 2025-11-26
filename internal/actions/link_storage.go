@@ -9,16 +9,16 @@ import (
 	"github.com/gungun974/gonova/internal/utils"
 )
 
-func LinkRepository(repository analyzer.AnalyzedRepository, usecase analyzer.AnalyzedUsecase) error {
+func LinkStorage(storage analyzer.AnalyzedStorage, usecase analyzer.AnalyzedUsecase) error {
 	projectPath := "."
 
 	containerFilePath := filepath.Join(projectPath, "/internal/container.go")
 
 	usecaseFilePath := usecase.FilePath
 
-	logger.MainLogger.Info("Link Repository")
+	logger.MainLogger.Info("Link Storage")
 
-	injector.InjectUsecaseRepository(usecaseFilePath, usecase, repository)
+	injector.InjectUsecaseStorage(usecaseFilePath, usecase, storage)
 
 	err := utils.GoImports(usecaseFilePath)
 	if err != nil {

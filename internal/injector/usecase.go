@@ -286,6 +286,10 @@ func InjectUsecaseRepository(path string, usecase analyzer.AnalyzedUsecase, repo
 	injectUsecaseDependency(path, "internal/layers/data", "repositories", usecase, repository.Name)
 }
 
+func InjectUsecaseStorage(path string, usecase analyzer.AnalyzedUsecase, storage analyzer.AnalyzedStorage) {
+	injectUsecaseDependency(path, "internal/layers/data", "storages", usecase, storage.Name)
+}
+
 func InjectUsecasePresenter(path string, usecase analyzer.AnalyzedUsecase, presenter analyzer.AnalyzedPresenter) {
 	injectUsecaseDependency(path, "internal/layers/presentation", "presenters", usecase, presenter.Name)
 }

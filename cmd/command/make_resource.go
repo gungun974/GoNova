@@ -162,7 +162,8 @@ func MakeResource(cmd *cobra.Command, args []string) {
 
 	shouldLinkUsecase := false
 
-	usecases := analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	storages := analyzer.AnalyzeProjectStorages()
+	usecases := analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 
 	var usecase *analyzer.AnalyzedUsecase
 
@@ -181,7 +182,7 @@ func MakeResource(cmd *cobra.Command, args []string) {
 		shouldLinkUsecase = true
 	}
 
-	usecases = analyzer.AnalyzeProjectUsecases(repositories, presenters)
+	usecases = analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 
 	for _, u := range usecases {
 		if u.Name == entity.Name+"Usecase" {
@@ -236,7 +237,7 @@ func MakeResource(cmd *cobra.Command, args []string) {
 
 		repositories = analyzer.AnalyzeProjectRepositories()
 		presenters = analyzer.AnalyzeProjectPresenters()
-		usecases = analyzer.AnalyzeProjectUsecases(repositories, presenters)
+		usecases = analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 		analyzer.DeepAnalyzeProjectController(controller, usecases)
 	}
 
@@ -248,7 +249,7 @@ func MakeResource(cmd *cobra.Command, args []string) {
 
 		repositories = analyzer.AnalyzeProjectRepositories()
 		presenters = analyzer.AnalyzeProjectPresenters()
-		usecases = analyzer.AnalyzeProjectUsecases(repositories, presenters)
+		usecases = analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 		analyzer.DeepAnalyzeProjectController(controller, usecases)
 	}
 
@@ -260,7 +261,7 @@ func MakeResource(cmd *cobra.Command, args []string) {
 
 		repositories = analyzer.AnalyzeProjectRepositories()
 		presenters = analyzer.AnalyzeProjectPresenters()
-		usecases = analyzer.AnalyzeProjectUsecases(repositories, presenters)
+		usecases = analyzer.AnalyzeProjectUsecases(repositories, storages, presenters)
 		analyzer.DeepAnalyzeProjectController(controller, usecases)
 	}
 
